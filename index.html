@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INFINICIG — La Cigarette Infinie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#050508;--cyan:#00f5ff;--purple:#bf00ff;
+  --amber:#ffaa00;--green:#39ff14;--orange:#e8723a;--text:#f8f8ff;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;overflow-x:hidden;min-height:100vh;}
+body::after{
+  content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.065) 2px,rgba(0,0,0,0.065) 4px);
+  pointer-events:none;z-index:9999;
+}
+#canvas-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+nav{
+  position:fixed;top:0;width:100%;z-index:200;
+  background:rgba(5,5,8,0.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(0,245,255,0.14);
+  padding:0 2.5rem;height:68px;
+  display:flex;align-items:center;gap:2rem;
+}
+.nav-logo{
+  font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.35rem;
+  color:var(--cyan);text-shadow:0 0 8px var(--cyan),0 0 28px var(--cyan),0 0 55px var(--cyan);
+  letter-spacing:.18em;cursor:pointer;flex-shrink:0;
+}
+.nav-tabs{display:flex;gap:4px;flex:1;}
+.nav-tab{
+  background:none;border:1px solid transparent;color:rgba(248,248,255,0.48);
+  font-family:'Orbitron',sans-serif;font-size:.68rem;letter-spacing:.12em;
+  padding:.45rem 1rem;cursor:pointer;border-radius:6px;transition:all .3s;white-space:nowrap;
+}
+.nav-tab:hover{color:var(--cyan);border-color:rgba(0,245,255,0.3);text-shadow:0 0 8px var(--cyan);}
+.nav-tab.active{
+  color:var(--cyan);border-color:var(--cyan);background:rgba(0,245,255,0.07);
+  text-shadow:0 0 8px var(--cyan),0 0 22px var(--cyan);
+  box-shadow:0 0 14px rgba(0,245,255,0.18),inset 0 0 12px rgba(0,245,255,0.05);
+}
+.nav-cart{
+  margin-left:auto;flex-shrink:0;position:relative;
+  background:none;border:1px solid rgba(0,245,255,0.28);color:var(--text);
+  font-size:1.2rem;width:42px;height:42px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .3s;
+}
+.nav-cart:hover{border-color:var(--cyan);box-shadow:0 0 14px rgba(0,245,255,0.3);}
+.cart-badge{
+  position:absolute;top:-4px;right:-4px;
+  background:var(--cyan);color:#050508;
+  font-family:'Orbitron',sans-serif;font-size:.58rem;font-weight:700;
+  width:17px;height:17px;border-radius:50%;
+  display:none;align-items:center;justify-content:center;
+}
+.cart-badge.show{display:flex;}
+#flash{position:fixed;inset:0;background:#fff;z-index:1000;opacity:0;pointer-events:none;}
+#hero{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none;}
+#hero-content{pointer-events:all;padding:0 1.5rem;}
+.hero-eyebrow{font-family:'Orbitron',sans-serif;font-size:.72rem;letter-spacing:.38em;color:var(--amber);text-shadow:0 0 10px var(--amber);margin-bottom:1.4rem;opacity:.88;}
+.hero-title{
+  font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(2.5rem,6.5vw,5.5rem);line-height:1.06;
+  background:linear-gradient(135deg,#00f5ff 0%,#bf00ff 55%,#ffaa00 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 28px rgba(0,245,255,0.5));margin-bottom:1.3rem;letter-spacing:.04em;
+}
+.hero-sub{font-family:'Rajdhani',sans-serif;font-size:clamp(.95rem,2vw,1.25rem);font-weight:400;color:rgba(248,248,255,.6);letter-spacing:.06em;margin-bottom:2.8rem;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6;}
+.hero-cta{
+  font-family:'Orbitron',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.14em;
+  color:#050508;background:linear-gradient(135deg,var(--cyan),var(--purple));
+  border:none;padding:1rem 2.8rem;border-radius:50px;cursor:pointer;
+  position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;
+  box-shadow:0 0 28px rgba(0,245,255,0.42),0 0 55px rgba(191,0,255,0.2);
+}
+.hero-cta::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);transition:left .5s;}
+.hero-cta:hover::before{left:100%;}
+.hero-cta:hover{transform:scale(1.055);box-shadow:0 0 45px rgba(0,245,255,0.6),0 0 85px rgba(191,0,255,0.35);}
+.glass-card{
+  background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(0,245,255,0.18);border-radius:16px;
+  box-shadow:0 0 28px rgba(0,245,255,0.08),inset 0 1px 0 rgba(255,255,255,0.07);padding:2rem;
+}
+#sections-wrap{position:relative;z-index:10;min-height:100vh;padding-top:68px;display:none;}
+.section-panel{display:none;min-height:calc(100vh - 68px);padding:3rem 2rem 5rem;max-width:1100px;margin:0 auto;overflow-y:auto;}
+.section-panel.active{display:block;}
+.chamber-progress{display:flex;gap:.7rem;justify-content:center;margin-bottom:2.2rem;}
+.ch-dot{width:10px;height:10px;border-radius:50%;background:rgba(248,248,255,0.13);border:1px solid rgba(248,248,255,0.18);cursor:pointer;transition:all .4s;}
+.ch-dot.active{background:var(--cyan);box-shadow:0 0 9px var(--cyan),0 0 22px var(--cyan);border-color:var(--cyan);}
+.chamber{display:none;}
+.chamber.active{display:block;}
+.chamber-card{border-radius:20px;padding:2.4rem;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);position:relative;overflow:hidden;}
+.ch-num{font-family:'Orbitron',sans-serif;font-size:.63rem;letter-spacing:.3em;opacity:.45;margin-bottom:.7rem;}
+.ch-title{font-family:'Orbitron',sans-serif;font-weight:700;font-size:clamp(1.2rem,3vw,1.85rem);margin-bottom:1.1rem;letter-spacing:.05em;}
+.ch-text{font-size:1.08rem;line-height:1.78;color:rgba(248,248,255,0.74);max-width:640px;margin-bottom:1.8rem;}
+.ch-visual{width:100%;height:175px;border-radius:12px;overflow:hidden;position:relative;background:rgba(0,0,0,0.28);margin-bottom:1.8rem;}
+.ch-nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.btn-ch{font-family:'Orbitron',sans-serif;font-size:.72rem;letter-spacing:.12em;padding:.75rem 1.75rem;border-radius:50px;cursor:pointer;transition:all .3s;border:1px solid;}
+.btn-ch-next{color:#050508;border-color:var(--cyan);box-shadow:0 0 18px rgba(0,245,255,0.38);}
+.btn-ch-next:hover{box-shadow:0 0 35px rgba(0,245,255,0.6);transform:translateX(3px);}
+.btn-ch-prev{background:transparent;color:rgba(248,248,255,.5);border-color:rgba(248,248,255,.18);}
+.btn-ch-prev:hover{color:var(--text);border-color:rgba(248,248,255,.45);}
+.tendril-wrap{position:relative;width:100%;height:100%;overflow:hidden;}
+.tendril{position:absolute;bottom:0;width:2px;border-radius:2px;background:linear-gradient(to top,transparent,#39ff14);box-shadow:0 0 6px #39ff14;transform-origin:bottom center;animation:sway 3s ease-in-out infinite;opacity:.72;}
+@keyframes sway{0%,100%{transform:scaleY(1) rotate(0deg);}25%{transform:scaleY(1.14) rotate(4deg);}75%{transform:scaleY(.9) rotate(-5deg);}}
+.rays-wrap{position:relative;width:100%;height:100%;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.ray{position:absolute;left:50%;top:50%;width:1px;transform-origin:0 0;animation:rayPulse 2.8s ease-in-out infinite;}
+@keyframes rayPulse{0%,100%{opacity:.18;width:1px;}50%{opacity:.75;width:2px;}}
+.rays-core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:var(--amber);box-shadow:0 0 25px var(--amber),0 0 55px var(--amber),0 0 90px var(--amber);animation:coreGlow 2s ease-in-out infinite;z-index:2;}
+@keyframes coreGlow{0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.32);box-shadow:0 0 35px var(--amber),0 0 70px var(--amber),0 0 110px rgba(255,170,0,0.38);}}
+.pulse-wrap{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+.pulse-ring{position:absolute;border-radius:50%;border:1px solid var(--cyan);animation:ringExpand 3.2s ease-out infinite;opacity:0;}
+@keyframes ringExpand{0%{width:18px;height:18px;opacity:.88;}100%{width:210px;height:210px;opacity:0;}}
+.pulse-core2{width:20px;height:20px;border-radius:50%;background:var(--cyan);box-shadow:0 0 18px var(--cyan),0 0 45px var(--cyan);animation:coreP 1.6s ease-in-out infinite;}
+@keyframes coreP{0%,100%{transform:scale(1);}50%{transform:scale(1.28);}}
+.cells-wrap{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:9px;padding:20px;}
+.cell{border:1px solid rgba(200,210,255,0.38);border-radius:50%;background:rgba(200,210,255,0.04);box-shadow:0 0 7px rgba(200,210,255,0.14);animation:cellDiv 4.2s ease-in-out infinite;}
+@keyframes cellDiv{0%,100%{transform:scale(1);border-radius:50%;opacity:.5;}40%{transform:scale(1.25) scaleX(1.3);border-radius:40%;opacity:.9;}50%{transform:scale(.8);opacity:.28;}60%{transform:scale(1);border-radius:50%;opacity:.7;}}
+.lattice-wrap{position:relative;width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;}
+.lattice-row{display:flex;flex:1;}
+.lattice-cell{flex:1;border:1px solid rgba(232,114,58,0.22);background:rgba(232,114,58,0.02);animation:latticeFill 4s ease-in-out infinite;}
+@keyframes latticeFill{0%,100%{background:rgba(232,114,58,0.02);border-color:rgba(232,114,58,0.18);}50%{background:rgba(232,114,58,0.1);border-color:rgba(232,114,58,0.6);box-shadow:inset 0 0 5px rgba(232,114,58,0.28);}}
+.shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.2rem;align-items:start;}
+@media(max-width:780px){.shop-grid{grid-template-columns:1fr;}}
+.product-visual{width:100%;aspect-ratio:1/1.15;border-radius:16px;background:linear-gradient(135deg,rgba(0,245,255,0.06),rgba(191,0,255,0.06));border:1px solid rgba(0,245,255,0.15);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.cig-vis-wrap{position:relative;display:flex;flex-direction:column;align-items:center;}
+.cig-vis-tip{position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:13px;height:13px;border-radius:50%;background:radial-gradient(circle,#ff7700,#ff2200);box-shadow:0 0 14px #ff6600,0 0 30px #ff6600,0 0 52px rgba(255,100,0,0.5);animation:tipV 2.2s ease-in-out infinite;}
+@keyframes tipV{0%,100%{box-shadow:0 0 14px #ff6600,0 0 28px #ff6600;transform:translateX(-50%) scale(1);}50%{box-shadow:0 0 22px #ff6600,0 0 50px #ff6600,0 0 75px rgba(255,100,0,0.38);transform:translateX(-50%) scale(1.15);}}
+.cig-vis-body{width:26px;height:195px;background:linear-gradient(to right,#d8d0bb,#f5f0e0,#d8d0bb);border-radius:13px 13px 0 0;box-shadow:0 0 25px rgba(245,240,224,0.18);}
+.cig-vis-filter{width:26px;height:52px;background:linear-gradient(to right,#b55530,#e8723a,#b55530);border-radius:0 0 13px 13px;}
+.product-glow{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:160px;height:160px;background:radial-gradient(circle,rgba(0,245,255,0.13),transparent 70%);pointer-events:none;}
+.product-info{display:flex;flex-direction:column;gap:1.4rem;}
+.prod-eyebrow{font-family:'Orbitron',sans-serif;font-size:.62rem;letter-spacing:.3em;color:var(--amber);text-shadow:0 0 9px var(--amber);}
+.prod-name{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.25rem,2.8vw,1.75rem);letter-spacing:.04em;}
+.prod-price{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(2.2rem,4.5vw,3.2rem);color:var(--cyan);text-shadow:0 0 14px var(--cyan),0 0 38px var(--cyan);line-height:1;}
+.prod-desc{font-size:.93rem;color:rgba(248,248,255,.52);letter-spacing:.04em;line-height:1.6;}
+.feat-list{list-style:none;display:flex;flex-direction:column;gap:.55rem;}
+.feat-list li{font-size:.98rem;color:rgba(248,248,255,.72);display:flex;align-items:center;gap:.7rem;padding:.45rem 0;border-bottom:1px solid rgba(255,255,255,0.055);}
+.qty-row{display:flex;align-items:center;gap:1rem;}
+.qty-label{font-family:'Orbitron',sans-serif;font-size:.68rem;letter-spacing:.2em;color:rgba(248,248,255,.45);}
+.qty-controls{display:flex;align-items:center;border:1px solid rgba(0,245,255,0.22);border-radius:8px;overflow:hidden;}
+.qty-btn{background:rgba(0,245,255,0.07);border:none;color:var(--cyan);width:35px;height:35px;font-size:1.1rem;cursor:pointer;transition:background .2s;display:flex;align-items:center;justify-content:center;}
+.qty-btn:hover{background:rgba(0,245,255,0.18);}
+.qty-val{width:38px;height:35px;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:.88rem;background:rgba(0,0,0,0.2);}
+.btn-primary{font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;color:#050508;background:linear-gradient(135deg,var(--cyan),#0099bb);border:none;padding:.95rem 1.8rem;border-radius:10px;cursor:pointer;transition:all .3s;box-shadow:0 0 18px rgba(0,245,255,0.32);position:relative;overflow:hidden;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 35px rgba(0,245,255,0.52);}
+.btn-primary.success{background:linear-gradient(135deg,var(--green),#22aa00);box-shadow:0 0 22px rgba(57,255,20,0.45);}
+.btn-secondary{font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;color:var(--cyan);background:transparent;border:1px solid var(--cyan);padding:.95rem 1.8rem;border-radius:10px;cursor:pointer;transition:all .3s;}
+.btn-secondary:hover{background:rgba(0,245,255,0.07);box-shadow:0 0 18px rgba(0,245,255,0.22);}
+.shop-btns{display:flex;gap:.9rem;flex-wrap:wrap;}
+.manifeste-hdr{text-align:center;margin-bottom:2.8rem;}
+.man-big{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.5rem,4vw,2.9rem);background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:.04em;line-height:1.14;margin-bottom:1.4rem;}
+.counter-num{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(2.2rem,5.5vw,4.2rem);color:var(--amber);text-shadow:0 0 18px var(--amber),0 0 45px var(--amber);margin-bottom:.4rem;}
+.counter-lbl{font-size:.82rem;letter-spacing:.2em;color:rgba(248,248,255,.4);}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem;margin-bottom:2.8rem;}
+@media(max-width:580px){.stats-grid{grid-template-columns:1fr;}}
+.stat-card{padding:1.4rem;text-align:center;border-radius:14px;}
+.stat-num{font-family:'Orbitron',sans-serif;font-size:1.42rem;font-weight:700;color:var(--cyan);text-shadow:0 0 11px var(--cyan);margin-bottom:.45rem;}
+.stat-text{font-size:.92rem;color:rgba(248,248,255,.62);line-height:1.5;}
+.man-divider{text-align:center;font-family:'Orbitron',sans-serif;font-size:clamp(.95rem,2.2vw,1.5rem);font-weight:700;letter-spacing:.06em;color:var(--text);padding:2.2rem 1rem;border-top:1px solid rgba(0,245,255,0.1);border-bottom:1px solid rgba(0,245,255,0.1);margin-bottom:2.2rem;}
+.solution-p{font-size:1.08rem;line-height:1.82;text-align:center;max-width:680px;margin:0 auto 2.8rem;background:linear-gradient(135deg,var(--cyan),var(--purple),var(--amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.timeline{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;padding:1.5rem 0;}
+.tl-step{text-align:center;padding:1.4rem 1.8rem;flex:1;min-width:150px;max-width:230px;}
+.tl-icon{font-size:1.9rem;margin-bottom:.65rem;}
+.tl-lbl{font-family:'Orbitron',sans-serif;font-size:.62rem;letter-spacing:.15em;color:rgba(248,248,255,.4);margin-bottom:.45rem;}
+.tl-title{font-family:'Orbitron',sans-serif;font-size:.85rem;font-weight:700;color:var(--text);}
+.tl-arrow{flex-shrink:0;color:var(--cyan);font-size:1.4rem;text-shadow:0 0 10px var(--cyan);padding:0 .4rem;}
+#cart-panel{position:fixed;top:0;right:0;width:370px;max-width:100vw;height:100%;z-index:500;transform:translateX(100%);transition:transform .42s cubic-bezier(.4,0,.2,1);background:rgba(5,5,8,0.93);backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);border-left:1px solid rgba(0,245,255,0.18);display:flex;flex-direction:column;padding:2rem;box-shadow:-12px 0 55px rgba(0,0,0,0.5);}
+#cart-panel.open{transform:translateX(0);}
+.cart-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.8rem;padding-bottom:.9rem;border-bottom:1px solid rgba(0,245,255,0.13);}
+.cart-title{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:700;color:var(--cyan);text-shadow:0 0 10px var(--cyan);letter-spacing:.15em;}
+.cart-close{background:none;border:1px solid rgba(248,248,255,.18);color:var(--text);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.cart-close:hover{border-color:var(--cyan);color:var(--cyan);}
+.cart-items-list{flex:1;overflow-y:auto;}
+.cart-item{display:flex;align-items:center;justify-content:space-between;padding:.9rem 0;border-bottom:1px solid rgba(255,255,255,0.055);}
+.cart-item-name{font-family:'Orbitron',sans-serif;font-size:.72rem;letter-spacing:.05em;margin-bottom:.2rem;}
+.cart-item-qty{font-size:.82rem;color:rgba(248,248,255,.4);}
+.cart-item-price{font-family:'Orbitron',sans-serif;font-size:.95rem;color:var(--cyan);}
+.cart-empty-msg{text-align:center;padding:3rem 0;color:rgba(248,248,255,.3);font-size:.92rem;letter-spacing:.05em;}
+.cart-footer{border-top:1px solid rgba(0,245,255,0.13);padding-top:1.4rem;margin-top:.9rem;}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.4rem;}
+.cart-total-lbl{font-family:'Orbitron',sans-serif;font-size:.72rem;letter-spacing:.2em;color:rgba(248,248,255,.48);}
+.cart-total-price{font-family:'Orbitron',sans-serif;font-size:1.55rem;font-weight:900;color:var(--cyan);text-shadow:0 0 11px var(--cyan);}
+#cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:499;opacity:0;pointer-events:none;transition:opacity .4s;}
+#cart-overlay.open{opacity:1;pointer-events:all;}
+#order-modal{position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.72);backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity .3s;}
+#order-modal.open{opacity:1;pointer-events:all;}
+.modal-card{max-width:460px;width:90%;text-align:center;padding:2.8rem;}
+.modal-icon{font-size:3.2rem;margin-bottom:1.1rem;}
+.modal-title{font-family:'Orbitron',sans-serif;font-size:1.25rem;font-weight:700;color:var(--cyan);text-shadow:0 0 11px var(--cyan);margin-bottom:.9rem;letter-spacing:.05em;}
+.modal-text{font-size:.97rem;color:rgba(248,248,255,.68);line-height:1.65;margin-bottom:1.8rem;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:rgba(0,245,255,0.28);border-radius:2px;}
+@media(max-width:580px){nav{padding:0 1rem;gap:.75rem;}.nav-tab{font-size:.58rem;padding:.38rem .65rem;}.section-panel{padding:1.5rem 1rem 4rem;}}
+</style>
+</head>
+<body>
+<div id="canvas-bg"></div>
+<div id="flash"></div>
+
+<nav>
+  <span class="nav-logo" onclick="goHome()">INFINICIG</span>
+  <div class="nav-tabs">
+    <button class="nav-tab" id="tab-btn-cigarette" onclick="switchTab('cigarette')">LA CIGARETTE</button>
+    <button class="nav-tab" id="tab-btn-commander" onclick="switchTab('commander')">COMMANDER</button>
+    <button class="nav-tab" id="tab-btn-manifeste" onclick="switchTab('manifeste')">MANIFESTE</button>
+  </div>
+  <button class="nav-cart" id="cart-btn" onclick="toggleCart()">&#128722;<span class="cart-badge" id="cart-badge">0</span></button>
+</nav>
+
+<div id="hero">
+  <div id="hero-content">
+    <p class="hero-eyebrow">TECHNOLOGIE BIO-REGENERATIVE &middot; BREVET MONDIAL &middot; EDITION 2026</p>
+    <h1 class="hero-title">LA CIGARETTE<br>INFINIE</h1>
+    <p class="hero-sub">Propulsee par l'energie solaire. Reconstruite cellule par cellule.<br>Elle ne s'eteint jamais vraiment.</p>
+    <button class="hero-cta" onclick="enterCigarette()">ENTRER DANS LA CIGARETTE &#8594;</button>
+  </div>
+</div>
+
+<div id="sections-wrap">
+  <div class="section-panel" id="section-cigarette">
+    <div class="chamber-progress" id="ch-progress"></div>
+    <div id="chambers-container"></div>
+  </div>
+
+  <div class="section-panel" id="section-commander">
+    <div class="shop-grid">
+      <div class="product-visual glass-card">
+        <div class="cig-vis-wrap">
+          <div class="cig-vis-tip"></div>
+          <div class="cig-vis-body"></div>
+          <div class="cig-vis-filter"></div>
+        </div>
+        <div class="product-glow"></div>
+      </div>
+      <div class="product-info">
+        <div class="glass-card" style="display:flex;flex-direction:column;gap:1.2rem;">
+          <p class="prod-eyebrow">EDITION FONDATRICE &middot; SERIE LIMITEE 999 EXEMPLAIRES</p>
+          <h2 class="prod-name">INFINICIG &#8212; EDITION FONDATRICE</h2>
+          <div class="prod-price">1 000 &euro;</div>
+          <p class="prod-desc">Edition Fondatrice &middot; Livraison Q4 2026 &middot; Serie limitee 999 exemplaires</p>
+          <ul class="feat-list">
+            <li><span>&#9854;</span> Regeneration infinie</li>
+            <li><span>&#9728;&#65039;</span> Energie solaire</li>
+            <li><span>&#127807;</span> Bio-organique</li>
+            <li><span>&#128300;</span> Brevete</li>
+          </ul>
+          <div class="qty-row">
+            <span class="qty-label">QTE</span>
+            <div class="qty-controls">
+              <button class="qty-btn" onclick="changeQty(-1)">&#8722;</button>
+              <div class="qty-val" id="qty-display">1</div>
+              <button class="qty-btn" onclick="changeQty(1)">+</button>
+            </div>
+          </div>
+          <div class="shop-btns">
+            <button class="btn-primary" id="add-cart-btn" onclick="addToCart()">AJOUTER AU PANIER</button>
+            <button class="btn-secondary" onclick="addToCart()">RESERVER MA PLACE</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-panel" id="section-manifeste">
+    <div class="manifeste-hdr">
+      <h2 class="man-big">4 000 000 DE MEGOTS<br>PAR JOUR</h2>
+      <div class="counter-num" id="counter-display">0</div>
+      <p class="counter-lbl">MEGOTS JETES EN FRANCE AUJOURD'HUI</p>
+    </div>
+    <div class="stats-grid">
+      <div class="glass-card stat-card"><div class="stat-num">4 milliards</div><div class="stat-text">de megots jetes par terre chaque annee en France</div></div>
+      <div class="glass-card stat-card"><div class="stat-num">12 ans</div><div class="stat-text">pour se decomposer dans la nature</div></div>
+      <div class="glass-card stat-card"><div class="stat-num">75%</div><div class="stat-text">des fumeurs jettent leurs megots au sol</div></div>
+      <div class="glass-card stat-card"><div class="stat-num">500 litres</div><div class="stat-text">d'eau polluee par un seul megot</div></div>
+    </div>
+    <div class="man-divider">ET SI LA CIGARETTE NE MOURAIT JAMAIS ?</div>
+    <p class="solution-p">INFINICIG est nee d'une conviction radicale : le probleme n'est pas le fumeur, c'est l'objet. Une cigarette concue pour disparaitre ne peut qu'etre un dechet. Nous avons repense l'objet depuis sa premiere cellule jusqu'a son dernier photon. Le resultat est une entite biologique auto-suffisante, capable de se regenerer indefiniment grace a l'energie solaire. Zero megot. Zero dechet. Pour toujours.</p>
+    <div class="timeline">
+      <div class="tl-step glass-card"><div class="tl-icon">&#128128;</div><div class="tl-lbl">ETAPE 01</div><div class="tl-title">LE PROBLEME</div></div>
+      <div class="tl-arrow">&#8594;</div>
+      <div class="tl-step glass-card"><div class="tl-icon">&#128300;</div><div class="tl-lbl">ETAPE 02</div><div class="tl-title">NOTRE SOLUTION</div></div>
+      <div class="tl-arrow">&#8594;</div>
+      <div class="tl-step glass-card"><div class="tl-icon">&#8734;</div><div class="tl-lbl">ETAPE 03</div><div class="tl-title">L'AVENIR</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="cart-overlay" onclick="toggleCart()"></div>
+<div id="cart-panel">
+  <div class="cart-hdr">
+    <span class="cart-title">PANIER</span>
+    <button class="cart-close" onclick="toggleCart()">&#10005;</button>
+  </div>
+  <div class="cart-items-list" id="cart-items-list">
+    <div class="cart-empty-msg" id="cart-empty">Votre panier est vide.</div>
+  </div>
+  <div class="cart-footer" id="cart-footer" style="display:none">
+    <div class="cart-total-row">
+      <span class="cart-total-lbl">TOTAL</span>
+      <span class="cart-total-price" id="cart-total-price">0 &euro;</span>
+    </div>
+    <button class="btn-primary" style="width:100%;text-align:center;" onclick="confirmOrder()">CONFIRMER LA COMMANDE</button>
+  </div>
+</div>
+
+<div id="order-modal">
+  <div class="glass-card modal-card">
+    <div class="modal-icon">&#9989;</div>
+    <h3 class="modal-title">COMMANDE CONFIRMEE</h3>
+    <p class="modal-text">Merci pour votre confiance.<br>Nous vous contacterons a votre email des que votre INFINICIG sera prete. Livraison prevue Q4 2026.</p>
+    <button class="btn-primary" onclick="closeModal()">FERMER</button>
+  </div>
+</div>
+
+<script>
+(function(){
+// THREE.JS SCENE
+var bg = document.getElementById('canvas-bg');
+var renderer = new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.5;
+renderer.shadowMap.enabled = true;
+bg.appendChild(renderer.domElement);
+
+var camera = new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,100);
+camera.position.z = 5;
+
+var scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x050508,0.05);
+
+scene.add(new THREE.AmbientLight(0x111122,2));
+var dl = new THREE.DirectionalLight(0xffcc66,2.0);
+dl.position.set(3,5,3);dl.castShadow=true;scene.add(dl);
+var fl = new THREE.DirectionalLight(0x2244aa,0.6);
+fl.position.set(-4,-2,2);scene.add(fl);
+
+var cigGroup = new THREE.Group();
+scene.add(cigGroup);
+
+var bodyM = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.16,0.16,3.5,32),
+  new THREE.MeshStandardMaterial({color:0xf5f0e0,roughness:0.45,metalness:0.05})
+);bodyM.castShadow=true;cigGroup.add(bodyM);
+
+var filterM = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.16,0.16,0.9,32),
+  new THREE.MeshStandardMaterial({color:0xe8723a,roughness:0.55})
+);filterM.position.y=-(3.5/2+0.9/2);cigGroup.add(filterM);
+
+var tipMat = new THREE.MeshStandardMaterial({color:0xff4400,emissive:0xff3300,emissiveIntensity:3,roughness:0.3});
+var tipM = new THREE.Mesh(new THREE.SphereGeometry(0.14,16,16),tipMat);
+tipM.position.y=3.5/2+0.04;cigGroup.add(tipM);
+
+var tipLight = new THREE.PointLight(0xff6600,3,4);
+tipLight.position.copy(tipM.position);cigGroup.add(tipLight);
+cigGroup.rotation.z=Math.PI/2;
+
+var N=2000;
+var pPos=new Float32Array(N*3);
+var pCol=new Float32Array(N*3);
+var pSpd=new Float32Array(N);
+var gold=new THREE.Color(0xffaa00);
+var white=new THREE.Color(0xffffff);
+var cyanC=new THREE.Color(0x00f5ff);
+
+function resetP(i){
+  var r=5+Math.random()*7;
+  var theta=Math.random()*Math.PI*2;
+  var phi=Math.acos(2*Math.random()-1);
+  pPos[i*3]=r*Math.sin(phi)*Math.cos(theta);
+  pPos[i*3+1]=r*Math.sin(phi)*Math.sin(theta)-2;
+  pPos[i*3+2]=r*Math.cos(phi)-1;
+  pSpd[i]=0.003+Math.random()*0.007;
+}
+for(var i=0;i<N;i++){
+  resetP(i);
+  var c=(i%3===0)?gold:(i%3===1?white:cyanC);
+  pCol[i*3]=c.r;pCol[i*3+1]=c.g;pCol[i*3+2]=c.b;
+}
+var pGeo=new THREE.BufferGeometry();
+pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
+pGeo.setAttribute('color',new THREE.BufferAttribute(pCol,3));
+var pMat=new THREE.PointsMaterial({size:0.04,vertexColors:true,transparent:true,opacity:0.75,blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true});
+scene.add(new THREE.Points(pGeo,pMat));
+
+var mX=0,mY=0,camTX=0,camTY=0;
+document.addEventListener('mousemove',function(e){
+  mX=(e.clientX/window.innerWidth-0.5)*2;
+  mY=(e.clientY/window.innerHeight-0.5)*2;
+});
+window.addEventListener('resize',function(){
+  renderer.setSize(window.innerWidth,window.innerHeight);
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+});
+
+var tick=0;
+function animate(){
+  requestAnimationFrame(animate);
+  tick+=0.01;
+  cigGroup.rotation.y+=0.004;
+  cigGroup.position.y=Math.sin(tick*0.5)*0.09;
+  tipLight.intensity=2.5+Math.sin(tick*3.5)*1.2;
+  tipMat.emissiveIntensity=2.5+Math.sin(tick*3.5)*1.0;
+  camTX+=(mX*0.1-camTX)*0.05;
+  camTY+=(-mY*0.1-camTY)*0.05;
+  camera.position.x+=(camTX-camera.position.x)*0.1;
+  camera.position.y+=(camTY-camera.position.y)*0.1;
+  var pa=pGeo.attributes.position.array;
+  for(var i=0;i<N;i++){pa[i*3+1]+=pSpd[i];if(pa[i*3+1]>7){resetP(i);pa[i*3+1]=-8;}}
+  pGeo.attributes.position.needsUpdate=true;
+  renderer.render(scene,camera);
+}
+animate();
+
+// HERO ENTER
+window.enterCigarette=function(){
+  var tl=gsap.timeline();
+  tl.to(camera.position,{z:0.2,duration:2,ease:'power2.in'});
+  tl.to('#flash',{opacity:1,duration:0.28,ease:'power2.in'},'-=0.15');
+  tl.to('#hero',{opacity:0,duration:0.2},'-=0.15');
+  tl.add(function(){
+    document.getElementById('hero').style.display='none';
+    document.getElementById('sections-wrap').style.display='block';
+    showSectionInner('cigarette');
+    document.getElementById('tab-btn-cigarette').classList.add('active');
+    gsap.to(camera.position,{z:5,duration:1.8,ease:'power2.out'});
+  });
+  tl.to('#flash',{opacity:0,duration:0.55,ease:'power2.out'});
+};
+
+window.goHome=function(){
+  document.getElementById('sections-wrap').style.display='none';
+  var hero=document.getElementById('hero');
+  hero.style.display='flex';
+  gsap.fromTo(hero,{opacity:0},{opacity:1,duration:0.5});
+  document.querySelectorAll('.nav-tab').forEach(function(b){b.classList.remove('active');});
+  currentTab=null;camera.position.z=5;
+};
+
+// TAB SWITCHING
+var currentTab=null;
+var transitioning=false;
+
+function exitAnim(tab,el){
+  if(tab==='cigarette') return gsap.to(el,{x:'100%',opacity:0,duration:0.38,ease:'power2.in'});
+  if(tab==='commander') return gsap.to(el,{y:'-100%',opacity:0,duration:0.38,ease:'power2.in'});
+  return gsap.to(el,{scale:0,opacity:0,rotation:15,duration:0.38,ease:'power2.in'});
+}
+function enterAnim(tab,el){
+  if(tab==='cigarette') return gsap.fromTo(el,{x:'-80%',opacity:0},{x:'0%',opacity:1,rotation:0,scale:1,duration:0.48,ease:'power2.out'});
+  if(tab==='commander') return gsap.fromTo(el,{y:'80%',opacity:0},{y:'0%',opacity:1,rotation:0,scale:1,duration:0.48,ease:'power2.out'});
+  return gsap.fromTo(el,{scale:0.85,opacity:0,rotation:-10},{scale:1,opacity:1,rotation:0,x:'0%',y:'0%',duration:0.48,ease:'back.out(1.4)'});
+}
+
+function showSectionInner(tab){
+  currentTab=tab;
+  var el=document.getElementById('section-'+tab);
+  el.style.display='block';
+  el.classList.add('active');
+  enterAnim(tab,el);
+  if(tab==='manifeste') startCounter();
+  if(tab==='cigarette'&&activeChamber<0) goToChamber(0);
+}
+
+window.switchTab=function(tab){
+  if(transitioning||tab===currentTab) return;
+  if(!document.getElementById('sections-wrap').style.display||document.getElementById('sections-wrap').style.display==='none'){enterCigarette();return;}
+  document.querySelectorAll('.nav-tab').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-btn-'+tab).classList.add('active');
+  if(currentTab){
+    transitioning=true;
+    var oldEl=document.getElementById('section-'+currentTab);
+    var prevTab=currentTab;
+    exitAnim(prevTab,oldEl).then(function(){
+      oldEl.style.display='none';oldEl.classList.remove('active');
+      gsap.set(oldEl,{clearProps:'all'});
+      showSectionInner(tab);transitioning=false;
+    });
+  } else {
+    showSectionInner(tab);
+  }
+};
+
+// CHAMBERS
+var activeChamber=-1;
+var CHAMBERS=[
+  {id:1,color:'#39ff14',title:'TISSU VEGETAL HYBRIDE',text:"Des fibres vegetales genetiquement reprogrammees forment l'enveloppe externe. Chaque cellule est capable de detecter les dommages et d'initier une reparation immediate.",visual:'tendrils'},
+  {id:2,color:'#ffaa00',title:'RESEAU CHLOROPHYLLIEN',text:"Des chloroplastes integres captent la lumiere solaire et la convertissent en energie bio-chimique alimentant tout le systeme de regeneration.",visual:'rays'},
+  {id:3,color:'#00f5ff',title:'CHAMBRE METABOLIQUE',text:"Le coeur energetique traite et redistribue l'energie solaire vers chaque cellule defaillante via un reseau nano-vasculaire ultra-precis.",visual:'pulse'},
+  {id:4,color:'#d0d8ff',title:'TISSU REGENERATEUR',text:"Des cellules souches artificielles se divisent continuellement pour reconstruire la matiere consommee, ramenant la cigarette a son etat originel.",visual:'cells'},
+  {id:5,color:'#e8723a',title:'FILTRE BIO-ACTIF',text:"Le filtre se auto-repare en 4 minutes grace a une structure polymere bio-active qui neutralise les toxines et reconstruit ses fibres apres chaque utilisation.",visual:'lattice'}
+];
+
+function buildVisual(type,color){
+  if(type==='tendrils'){
+    var h='<div class="tendril-wrap">';
+    for(var i=0;i<20;i++){var l=2+i*5;var ht=35+Math.floor(Math.random()*95);var d=(Math.random()*2.5).toFixed(2);var dur=(2.2+Math.random()*2).toFixed(2);h+='<div class="tendril" style="left:'+l+'%;height:'+ht+'px;animation-delay:'+d+'s;animation-duration:'+dur+'s;"></div>';}
+    return h+'</div>';
+  }
+  if(type==='rays'){
+    var h='<div class="rays-wrap">';
+    for(var i=0;i<22;i++){var ang=(i/22)*360;var len=55+Math.floor(Math.random()*75);var d=(Math.random()*2.8).toFixed(2);h+='<div class="ray" style="height:'+len+'px;top:50%;left:50%;transform:translate(-50%,-50%) rotate('+ang+'deg) translateY(-'+(len/2)+'px);background:linear-gradient(to top,transparent,'+color+',transparent);animation-delay:'+d+'s;"></div>';}
+    return h+'<div class="rays-core"></div></div>';
+  }
+  if(type==='pulse'){
+    var h='<div class="pulse-wrap">';
+    for(var i=0;i<5;i++) h+='<div class="pulse-ring" style="animation-delay:'+(i*0.62).toFixed(2)+'s;border-color:'+color+';"></div>';
+    return h+'<div class="pulse-core2" style="background:'+color+';box-shadow:0 0 18px '+color+',0 0 42px '+color+';"></div></div>';
+  }
+  if(type==='cells'){
+    var sizes=[22,30,18,26,34,20,28,24,16,32,22,28,20,30];
+    var h='<div class="cells-wrap">';
+    for(var i=0;i<sizes.length;i++){var d=(Math.random()*4.2).toFixed(2);h+='<div class="cell" style="width:'+sizes[i]+'px;height:'+sizes[i]+'px;animation-delay:'+d+'s;"></div>';}
+    return h+'</div>';
+  }
+  if(type==='lattice'){
+    var h='<div class="lattice-wrap">';
+    for(var r=0;r<5;r++){h+='<div class="lattice-row">';for(var c=0;c<13;c++){var d=((r*13+c)*0.055).toFixed(2);h+='<div class="lattice-cell" style="animation-delay:'+d+'s;"></div>';}h+='</div>';}
+    return h+'</div>';
+  }
+  return '';
+}
+
+function buildChambers(){
+  var container=document.getElementById('chambers-container');
+  var progress=document.getElementById('ch-progress');
+  CHAMBERS.forEach(function(ch,idx){
+    var dot=document.createElement('div');dot.className='ch-dot';dot.id='dot-'+idx;
+    dot.onclick=(function(i){return function(){goToChamber(i);};})(idx);
+    progress.appendChild(dot);
+    var prevBtn=idx>0?'<button class="btn-ch btn-ch-prev" onclick="goToChamber('+(idx-1)+')">&#8592; PRECEDENTE</button>':'<span></span>';
+    var nextLabel=idx<4?'CHAMBRE SUIVANTE &#8594;':'COMMANDER &#8594;';
+    var nextClick=idx<4?'goToChamber('+(idx+1)+')':"switchTab('commander')";
+    var div=document.createElement('div');div.className='chamber';div.id='ch-'+idx;
+    div.innerHTML='<div class="chamber-card glass-card" style="border-color:'+ch.color+'20;box-shadow:0 0 38px '+ch.color+'16;"><p class="ch-num" style="color:'+ch.color+'">CHAMBRE 0'+ch.id+' / 05</p><h2 class="ch-title" style="color:'+ch.color+';text-shadow:0 0 14px '+ch.color+',0 0 32px '+ch.color+'44;">'+ch.title+'</h2><p class="ch-text">'+ch.text+'</p><div class="ch-visual">'+buildVisual(ch.visual,ch.color)+'</div><div class="ch-nav">'+prevBtn+'<button class="btn-ch btn-ch-next" style="background:'+ch.color+';border-color:'+ch.color+';" onclick="'+nextClick+'">'+nextLabel+'</button></div></div>';
+    container.appendChild(div);
+  });
+}
+
+window.goToChamber=function(idx){
+  if(idx===activeChamber) return;
+  var oldIdx=activeChamber;activeChamber=idx;
+  document.querySelectorAll('.ch-dot').forEach(function(d,i){d.classList.toggle('active',i===idx);});
+  if(oldIdx<0){
+    var el=document.getElementById('ch-'+idx);el.classList.add('active');
+    gsap.fromTo(el,{opacity:0,y:25},{opacity:1,y:0,duration:0.45,ease:'power2.out'});return;
+  }
+  var oldEl=document.getElementById('ch-'+oldIdx);
+  var nextEl=document.getElementById('ch-'+idx);
+  var dir=idx>oldIdx?1:-1;
+  gsap.to(oldEl,{x:dir*-65,opacity:0,duration:0.3,ease:'power2.in',onComplete:function(){
+    oldEl.classList.remove('active');gsap.set(oldEl,{clearProps:'all'});
+    nextEl.classList.add('active');
+    gsap.fromTo(nextEl,{x:dir*65,opacity:0},{x:0,opacity:1,duration:0.4,ease:'power2.out'});
+  }});
+};
+
+// COUNTER
+var counterStarted=false;
+function startCounter(){
+  if(counterStarted) return;counterStarted=true;
+  var el=document.getElementById('counter-display');
+  var target=4000000;var start=performance.now();var dur=2600;
+  function step(now){
+    var prog=Math.min((now-start)/dur,1);var ease=1-Math.pow(1-prog,3);
+    el.textContent=Math.floor(ease*target).toLocaleString('fr-FR');
+    if(prog<1) requestAnimationFrame(step);else el.textContent=target.toLocaleString('fr-FR');
+  }
+  requestAnimationFrame(step);
+}
+
+// SHOP
+var qty=1;
+window.changeQty=function(d){qty=Math.max(1,Math.min(3,qty+d));document.getElementById('qty-display').textContent=qty;};
+var cartItems=[];
+window.addToCart=function(){
+  var ex=cartItems.find(function(i){return i.name==='INFINICIG';});
+  if(ex) ex.qty=Math.min(3,ex.qty+qty);
+  else cartItems.push({name:'INFINICIG',qty:qty,price:1000});
+  refreshCartUI();
+  var btn=document.getElementById('add-cart-btn');
+  btn.textContent='&#10003; AJOUTE !';btn.classList.add('success');
+  setTimeout(function(){btn.textContent='AJOUTER AU PANIER';btn.classList.remove('success');},1800);
+};
+
+function refreshCartUI(){
+  var count=cartItems.reduce(function(s,i){return s+i.qty;},0);
+  var total=cartItems.reduce(function(s,i){return s+i.qty*i.price;},0);
+  var badge=document.getElementById('cart-badge');
+  badge.textContent=count;badge.classList.toggle('show',count>0);
+  var list=document.getElementById('cart-items-list');
+  var empty=document.getElementById('cart-empty');
+  var footer=document.getElementById('cart-footer');
+  if(cartItems.length===0){empty.style.display='block';list.querySelectorAll('.cart-item').forEach(function(e){e.remove();});footer.style.display='none';}
+  else{
+    empty.style.display='none';list.querySelectorAll('.cart-item').forEach(function(e){e.remove();});
+    cartItems.forEach(function(item){
+      var d=document.createElement('div');d.className='cart-item';
+      d.innerHTML='<div><div class="cart-item-name">'+item.name+'</div><div class="cart-item-qty">Quantite : '+item.qty+'</div></div><div class="cart-item-price">'+(item.qty*item.price).toLocaleString('fr-FR')+' &euro;</div>';
+      list.appendChild(d);
+    });
+    footer.style.display='block';
+    document.getElementById('cart-total-price').textContent=total.toLocaleString('fr-FR')+' €';
+  }
+}
+
+window.toggleCart=function(){
+  document.getElementById('cart-panel').classList.toggle('open');
+  document.getElementById('cart-overlay').classList.toggle('open');
+};
+window.confirmOrder=function(){
+  if(cartItems.length===0) return;
+  document.getElementById('order-modal').classList.add('open');
+  document.getElementById('cart-panel').classList.remove('open');
+  document.getElementById('cart-overlay').classList.remove('open');
+};
+window.closeModal=function(){
+  document.getElementById('order-modal').classList.remove('open');
+  cartItems=[];refreshCartUI();
+};
+
+// INIT
+buildChambers();
+refreshCartUI();
+gsap.from('.hero-eyebrow',{y:28,opacity:0,duration:1,delay:0.3,ease:'power3.out'});
+gsap.from('.hero-title',{y:48,opacity:0,duration:1.2,delay:0.5,ease:'power3.out'});
+gsap.from('.hero-sub',{y:25,opacity:0,duration:1,delay:0.8,ease:'power3.out'});
+gsap.from('.hero-cta',{scale:0.8,opacity:0,duration:0.8,delay:1.1,ease:'back.out(2)'});
+
+})();
+</script>
+</body>
+</html>
