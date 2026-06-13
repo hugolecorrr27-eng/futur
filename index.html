@@ -797,9 +797,12 @@ nav{
 
 // ═══════════════════════════════════════════════════
 //  THREE.JS — HERO BACKGROUND (realistic cigarette)
+//  Wrapped in try/catch: if CDN fails, rest of JS still runs
 // ═══════════════════════════════════════════════════
+var cigGroup, camera, renderer, scene, tipMat, tipLight, pGeo, NP=800;
+try {
 var bgCanvas = document.getElementById('bg-canvas');
-var renderer = new THREE.WebGLRenderer({canvas:bgCanvas, antialias:true, alpha:true});
+renderer = new THREE.WebGLRenderer({canvas:bgCanvas, antialias:true, alpha:true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -990,33 +993,43 @@ function heroAnimate(){
   renderer.render(scene, camera);
 }
 heroAnimate();
+} catch(e){ console.warn('Three.js hero init failed:', e); }
 
 // ═══════════════════════════════════════════════════
 //  ENTER CIGARETTE
 // ═══════════════════════════════════════════════════
 window.enterCigarette = function(){
   var flash = document.getElementById('flash');
-  // Dark flash — feel of plunging into the cigarette interior
   flash.style.background = '#050405';
+  var hero  = document.getElementById('hero');
 
-  var tl = gsap.timeline();
-  // Fast tilt + aggressive rush forward — filter end coming at the camera
-  tl.to(cigGroup.rotation,  {x:-0.04, z: Math.PI/2+0.18, duration:.38, ease:'power2.in'});
-  tl.to(cigGroup.position,  {x:0.55, z:-0.6, duration:.38, ease:'power2.in'}, '<');
-  tl.to(camera.position,    {z:-0.05, x:1.6, duration:1.0, ease:'power4.in'}, '<0.08');
-  tl.to('#hero',            {opacity:0, duration:.18, ease:'power1.in'}, '<0.55');
-  tl.to(flash,              {opacity:1, duration:.14, ease:'power3.in'}, '-=0.06');
-  tl.add(function(){
-    document.getElementById('hero').style.display = 'none';
+  function doReveal(){
+    hero.style.display = 'none';
     document.getElementById('sections-wrap').style.display = 'block';
-    cigGroup.visible = false;
-    gsap.set(camera.position, {z:6.2, x:0});
-    cigGroup.position.x = 0; cigGroup.position.z = 0;
-    cigGroup.rotation.z = Math.PI/2; cigGroup.rotation.x = 0.08;
     showSectionInner('cigarette');
     document.getElementById('tab-btn-cigarette').classList.add('active');
-  });
-  tl.to(flash, {opacity:0, duration:.55, ease:'power2.out'});
+    gsap.to(flash, {opacity:0, duration:.55, ease:'power2.out'});
+  }
+
+  // If Three.js loaded → cinematic zoom; otherwise instant flash
+  if(renderer && cigGroup){
+    var tl = gsap.timeline();
+    tl.to(cigGroup.rotation,  {x:-0.04, z:Math.PI/2+0.18, duration:.38, ease:'power2.in'});
+    tl.to(cigGroup.position,  {x:0.55, z:-0.6, duration:.38, ease:'power2.in'}, '<');
+    tl.to(camera.position,    {z:-0.05, x:1.6, duration:1.0, ease:'power4.in'}, '<0.08');
+    tl.to(hero,               {opacity:0, duration:.18, ease:'power1.in'}, '<0.55');
+    tl.to(flash,              {opacity:1, duration:.14, ease:'power3.in'}, '-=0.06');
+    tl.add(function(){
+      if(cigGroup){ cigGroup.visible=false; }
+      if(camera){ gsap.set(camera.position,{z:6.2,x:0}); }
+      if(cigGroup){ cigGroup.position.x=0; cigGroup.position.z=0;
+                    cigGroup.rotation.z=Math.PI/2; cigGroup.rotation.x=0.08; }
+      doReveal();
+    });
+  } else {
+    gsap.to(hero, {opacity:0, duration:.3});
+    gsap.to(flash, {opacity:1, duration:.2, onComplete: doReveal});
+  }
 };
 
 window.goHome = function(){
@@ -1130,12 +1143,12 @@ function setChamberBg(idx, instant){
   }, 1000);
 }
 
-// ─── Particle canvas ───────────────────────────────
-var ptCanvas = document.getElementById('int-particle-canvas');
-var ptCtx    = ptCanvas.getContext('2d');
-var ptW, ptH, ptTime=0, ptLast=0, ptAnimId=null;
+// ─── Particle canvas (lazy-init — only when section is visible) ────
+var ptCanvas=null, ptCtx=null;
+var ptW=0, ptH=0, ptTime=0, ptLast=0, ptAnimId=null;
 
 function resizePt(){
+  if(!ptCanvas) return;
   ptW = ptCanvas.width  = ptCanvas.offsetWidth  || window.innerWidth;
   ptH = ptCanvas.height = ptCanvas.offsetHeight || (window.innerHeight-64);
 }
@@ -1247,6 +1260,7 @@ var CHAMBER_FX = [
 ];
 
 function runPtAnim(ts){
+  if(!ptCtx){ ptAnimId=null; return; }
   if(!ptLast) ptLast=ts;
   ptTime+=(ts-ptLast)*.001; ptLast=ts;
   ptCtx.clearRect(0,0,ptW,ptH);
@@ -1255,7 +1269,14 @@ function runPtAnim(ts){
   ptAnimId=requestAnimationFrame(runPtAnim);
 }
 
-function initInterior(){ resizePt(); }
+function initInterior(){
+  // Lazy-init particle canvas the first time the section opens
+  if(!ptCanvas){
+    ptCanvas = document.getElementById('int-particle-canvas');
+    if(ptCanvas) ptCtx = ptCanvas.getContext('2d');
+  }
+  resizePt();
+}
 
 function startInteriorAnim(){
   if(ptAnimId) return;
@@ -1264,7 +1285,7 @@ function startInteriorAnim(){
 }
 function stopInteriorAnim(){
   if(ptAnimId){ cancelAnimationFrame(ptAnimId); ptAnimId=null; ptLast=0; }
-  if(ptCtx) ptCtx.clearRect(0,0,ptW,ptH);
+  if(ptCtx && ptW && ptH) ptCtx.clearRect(0,0,ptW,ptH);
 }
 
 // ─── stubs so old references don't throw ───
