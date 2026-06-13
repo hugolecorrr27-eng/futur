@@ -127,52 +127,52 @@ nav{
 .int-bg-layer.int-visible{opacity:1;}
 
 /* Per-chamber filter animations on the image itself */
-.int-bg-layer.anim-filtre  {animation:filtreFilter  3.8s ease-in-out infinite;}
-.int-bg-layer.anim-tissu   {animation:tissuFilter   2.6s ease-in-out infinite;}
-.int-bg-layer.anim-chambre {animation:chambreFilter 2.2s ease-in-out infinite;}
-.int-bg-layer.anim-reseau  {animation:reseauFilter  2.9s ease-in-out infinite;}
-.int-bg-layer.anim-env     {animation:envFilter     3.5s ease-in-out infinite;}
+.int-bg-layer.anim-filtre  {animation:filtreFilter  3.2s ease-in-out infinite;}
+.int-bg-layer.anim-tissu   {animation:tissuFilter   2.4s ease-in-out infinite;}
+.int-bg-layer.anim-chambre {animation:chambreFilter 1.9s ease-in-out infinite;}
+.int-bg-layer.anim-reseau  {animation:reseauFilter  2.5s ease-in-out infinite;}
+.int-bg-layer.anim-env     {animation:envFilter     3.0s ease-in-out infinite;}
 
-/* Filtre: warm amber sunlight pulse on fibers — brightness + warm sepia */
+/* Filtre: warm amber sunlight STRONG pulse — fibers glow hot then cool */
 @keyframes filtreFilter{
-  0%,100%{filter:brightness(.82) contrast(1.08) sepia(.12) saturate(.95);}
-  50%    {filter:brightness(1.2)  contrast(1.14) sepia(.24) saturate(1.18);}
+  0%,100%{filter:brightness(.62) contrast(1.14) sepia(.2)  saturate(.82);}
+  50%    {filter:brightness(1.52) contrast(1.22) sepia(.38) saturate(1.42);}
 }
-/* Tissu: blue-white cell breathing — scale + cool saturation */
+/* Tissu: STRONG breathing — cells swell with bioluminescence */
 @keyframes tissuFilter{
-  0%,100%{filter:brightness(.78) saturate(.9)  hue-rotate(0deg) scale(1);}
-  45%    {filter:brightness(1.14) saturate(1.28) hue-rotate(8deg)  scale(1.012);}
+  0%,100%{filter:brightness(.6)  saturate(.78) hue-rotate(0deg);}
+  50%    {filter:brightness(1.48) saturate(1.55) hue-rotate(14deg);}
 }
-/* Chambre: electric energy flash — high contrast flicker */
+/* Chambre: STRONG electric flicker — energy surge then discharge */
 @keyframes chambreFilter{
-  0%,100%{filter:brightness(.72) contrast(1.15) saturate(.85);}
-  40%    {filter:brightness(1.28) contrast(1.22) saturate(1.25) hue-rotate(-10deg);}
-  65%    {filter:brightness(.88)  contrast(1.1)  saturate(1.0);}
+  0%,100%{filter:brightness(.58) contrast(1.22) saturate(.72);}
+  35%    {filter:brightness(1.62) contrast(1.35) saturate(1.5)  hue-rotate(-18deg);}
+  60%    {filter:brightness(.82)  contrast(1.14) saturate(.98);}
 }
-/* Réseau: solar recharge rhythm — triple-step brightness cycle */
+/* Réseau: STRONG solar recharge — three-step photosynthesis burst */
 @keyframes reseauFilter{
-  0%    {filter:brightness(.72) saturate(.88) contrast(1.04);}
-  30%   {filter:brightness(1.3)  saturate(1.35) contrast(1.12);}
-  58%   {filter:brightness(.85)  saturate(1.08) contrast(1.06);}
-  100%  {filter:brightness(.72) saturate(.88) contrast(1.04);}
+  0%    {filter:brightness(.58) saturate(.72) contrast(1.08);}
+  25%   {filter:brightness(1.65) saturate(1.62) contrast(1.22);}
+  52%   {filter:brightness(.78)  saturate(1.08) contrast(1.1);}
+  100%  {filter:brightness(.58) saturate(.72) contrast(1.08);}
 }
-/* Enveloppe: organic green pulse */
+/* Enveloppe: STRONG organic bioluminescent pulse */
 @keyframes envFilter{
-  0%,100%{filter:brightness(.8) saturate(.95) contrast(1.04);}
-  50%    {filter:brightness(1.12) saturate(1.22) contrast(1.1) hue-rotate(6deg);}
+  0%,100%{filter:brightness(.62) saturate(.8)  contrast(1.08);}
+  50%    {filter:brightness(1.45) saturate(1.48) contrast(1.18) hue-rotate(10deg);}
 }
 
-/* Directional light overlay — per chamber */
+/* Directional light overlay — per chamber — BOOSTED */
 #int-light-layer{
   position:absolute;inset:0;z-index:2;pointer-events:none;
 }
-#section-cigarette.ch-filtre  #int-light-layer{background:radial-gradient(ellipse at 80% 8%,  rgba(255,195,85,.22) 0%,transparent 55%);animation:lightPulse 3.8s ease-in-out infinite;}
-#section-cigarette.ch-regener #int-light-layer{background:radial-gradient(ellipse at center,   rgba(130,180,255,.18) 0%,transparent 52%);animation:lightPulse 2.6s ease-in-out infinite;}
-#section-cigarette.ch-meta    #int-light-layer{background:radial-gradient(ellipse at center,   rgba(60,145,230,.22) 0%,transparent 44%);animation:lightFast  2.0s ease-in-out infinite;}
-#section-cigarette.ch-chloro  #int-light-layer{background:radial-gradient(ellipse at 42% 0%,   rgba(175,235,75,.2)  0%,transparent 58%);animation:lightPulse 2.9s ease-in-out infinite;}
-#section-cigarette.ch-tissu   #int-light-layer{background:radial-gradient(ellipse at center,   rgba(55,185,85,.18)  0%,transparent 50%);animation:lightFast  3.5s ease-in-out infinite;}
-@keyframes lightPulse{0%,100%{opacity:.55}50%{opacity:1}}
-@keyframes lightFast {0%,100%{opacity:.35}50%{opacity:1}}
+#section-cigarette.ch-filtre  #int-light-layer{background:radial-gradient(ellipse at 80% 8%,  rgba(255,195,85,.42) 0%,transparent 55%);animation:lightPulse 3.2s ease-in-out infinite;}
+#section-cigarette.ch-regener #int-light-layer{background:radial-gradient(ellipse at center,   rgba(130,185,255,.35) 0%,transparent 52%);animation:lightPulse 2.4s ease-in-out infinite;}
+#section-cigarette.ch-meta    #int-light-layer{background:radial-gradient(ellipse at center,   rgba(60,150,240,.42) 0%,transparent 44%);animation:lightFast  1.8s ease-in-out infinite;}
+#section-cigarette.ch-chloro  #int-light-layer{background:radial-gradient(ellipse at 42% 0%,   rgba(180,240,80,.38) 0%,transparent 58%);animation:lightPulse 2.5s ease-in-out infinite;}
+#section-cigarette.ch-tissu   #int-light-layer{background:radial-gradient(ellipse at center,   rgba(55,195,90,.35)  0%,transparent 50%);animation:lightFast  3.0s ease-in-out infinite;}
+@keyframes lightPulse{0%,100%{opacity:.22}50%{opacity:1}}
+@keyframes lightFast {0%,100%{opacity:.15}50%{opacity:1}}
 
 /* Scan line shimmer — subtle horizontal stripe sweep */
 #int-scan-layer{
@@ -186,6 +186,11 @@ nav{
 #int-vignette{
   position:absolute;inset:0;z-index:4;pointer-events:none;
   background:radial-gradient(ellipse at center,transparent 22%,rgba(10,10,11,.6) 100%);
+}
+/* Particle canvas — live effects on top of images */
+#int-particle-canvas{
+  position:absolute;inset:0;z-index:6;pointer-events:none;
+  width:100%;height:100%;
 }
 
 .interior-overlay{
@@ -589,6 +594,7 @@ nav{
       <div id="int-light-layer"></div>
       <div id="int-scan-layer"></div>
       <div id="int-vignette"></div>
+      <canvas id="int-particle-canvas"></canvas>
     </div>
     <button class="int-exit-btn" onclick="switchTab('commander')">Quitter l&#8217;exploration &times;</button>
 
@@ -989,22 +995,28 @@ heroAnimate();
 //  ENTER CIGARETTE
 // ═══════════════════════════════════════════════════
 window.enterCigarette = function(){
+  var flash = document.getElementById('flash');
+  // Dark flash — feel of plunging into the cigarette interior
+  flash.style.background = '#050405';
+
   var tl = gsap.timeline();
-  // Camera zooms INTO the filter end (right side of screen = filter)
-  tl.to(cigGroup.position, {x: 0.8, duration: 0.5, ease: 'power1.in'});
-  tl.to(camera.position, {z: 0.4, x: 2.2, duration: 1.8, ease: 'power3.in'}, '<');
-  tl.to('#flash', {opacity: 1, duration: 0.3, ease: 'power2.in'}, '-=0.25');
-  tl.to('#hero', {opacity: 0, duration: 0.2}, '<');
+  // Fast tilt + aggressive rush forward — filter end coming at the camera
+  tl.to(cigGroup.rotation,  {x:-0.04, z: Math.PI/2+0.18, duration:.38, ease:'power2.in'});
+  tl.to(cigGroup.position,  {x:0.55, z:-0.6, duration:.38, ease:'power2.in'}, '<');
+  tl.to(camera.position,    {z:-0.05, x:1.6, duration:1.0, ease:'power4.in'}, '<0.08');
+  tl.to('#hero',            {opacity:0, duration:.18, ease:'power1.in'}, '<0.55');
+  tl.to(flash,              {opacity:1, duration:.14, ease:'power3.in'}, '-=0.06');
   tl.add(function(){
     document.getElementById('hero').style.display = 'none';
     document.getElementById('sections-wrap').style.display = 'block';
     cigGroup.visible = false;
-    gsap.set(camera.position, {z: 6.2, x: 0});
-    cigGroup.position.x = 0;
+    gsap.set(camera.position, {z:6.2, x:0});
+    cigGroup.position.x = 0; cigGroup.position.z = 0;
+    cigGroup.rotation.z = Math.PI/2; cigGroup.rotation.x = 0.08;
     showSectionInner('cigarette');
     document.getElementById('tab-btn-cigarette').classList.add('active');
   });
-  tl.to('#flash', {opacity: 0, duration: 0.6, ease: 'power2.out'});
+  tl.to(flash, {opacity:0, duration:.55, ease:'power2.out'});
 };
 
 window.goHome = function(){
@@ -1048,6 +1060,7 @@ function showSectionInner(tab){
   } else {
     stopInteriorAnim();
   }
+  if(tab === 'cigarette') window.addEventListener('resize', resizePt);
 }
 
 window.switchTab = function(tab){
@@ -1117,9 +1130,142 @@ function setChamberBg(idx, instant){
   }, 1000);
 }
 
-function initInterior(){}
-function startInteriorAnim(){}
-function stopInteriorAnim(){}
+// ─── Particle canvas ───────────────────────────────
+var ptCanvas = document.getElementById('int-particle-canvas');
+var ptCtx    = ptCanvas.getContext('2d');
+var ptW, ptH, ptTime=0, ptLast=0, ptAnimId=null;
+
+function resizePt(){
+  ptW = ptCanvas.width  = ptCanvas.offsetWidth  || window.innerWidth;
+  ptH = ptCanvas.height = ptCanvas.offsetHeight || (window.innerHeight-64);
+}
+
+// Per-chamber particle draw functions
+var CHAMBER_FX = [
+  // 01 Filtre: warm amber dust motes + concentric rebuild rings
+  function(ctx,w,h,t){
+    var cx=w/2, cy=h/2;
+    for(var i=0;i<44;i++){
+      var x=((i*0.618*w+t*22)%(w+30))-15;
+      var y=cy+Math.sin(t*.38+i*.7)*(h*.36)+Math.cos(t*.22+i*.4)*(h*.1);
+      var a=.45+Math.sin(t*1.1+i)*.35;
+      ctx.beginPath(); ctx.arc(x,y,2.2,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,185,75,'+a+')';
+      ctx.shadowBlur=10; ctx.shadowColor='rgba(255,155,40,.65)';
+      ctx.fill(); ctx.shadowBlur=0;
+    }
+    for(var i=0;i<4;i++){
+      var pf=(t*.32+i*.25)%1, r=25+pf*Math.min(w,h)*.38;
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+      ctx.strokeStyle='rgba(255,175,60,'+(0.22-pf*.22)+')';
+      ctx.lineWidth=2.2; ctx.stroke();
+    }
+  },
+  // 02 Tissu Rég.: blue-white orbital dots + cell division rings
+  function(ctx,w,h,t){
+    var cx=w/2, cy=h/2;
+    for(var i=0;i<32;i++){
+      var a=(i/32)*Math.PI*2+t*.09;
+      var r=Math.min(70+Math.sin(t*.45+i*.42)*55+i*13, w*.4);
+      var px=cx+Math.cos(a)*r*.9, py=cy+Math.sin(a)*r*.68;
+      var al=.38+Math.sin(t*1.35+i*.55)*.28;
+      ctx.beginPath(); ctx.arc(px,py,3.2,0,Math.PI*2);
+      ctx.fillStyle='rgba(175,210,255,'+al+')';
+      ctx.shadowBlur=14; ctx.shadowColor='rgba(140,190,255,.55)';
+      ctx.fill(); ctx.shadowBlur=0;
+    }
+    for(var i=0;i<5;i++){
+      var pf=(t*.26+i*.2)%1, r=18+pf*Math.min(w,h)*.44;
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+      ctx.strokeStyle='rgba(155,195,255,'+(0.24-pf*.24)+')';
+      ctx.lineWidth=1.8; ctx.stroke();
+    }
+  },
+  // 03 Chambre Métabolique: fast blue sparks rushing to center
+  function(ctx,w,h,t){
+    var cx=w/2, cy=h/2;
+    for(var i=0;i<55;i++){
+      var phase=(t*.95+i*.0182)%1;
+      var ang=(i/55)*Math.PI*2;
+      var r=(1-phase)*Math.min(w,h)*.52;
+      var px=cx+Math.cos(ang)*r*.85, py=cy+Math.sin(ang)*r*.68;
+      var sz=1.5+phase*2.5, al=phase*.75;
+      ctx.beginPath(); ctx.arc(px,py,sz,0,Math.PI*2);
+      ctx.fillStyle='rgba(95,178,255,'+al+')';
+      ctx.shadowBlur=12; ctx.shadowColor='rgba(75,158,255,.55)';
+      ctx.fill(); ctx.shadowBlur=0;
+    }
+    var cr=22+Math.sin(t*2.4)*10;
+    var cg=ctx.createRadialGradient(cx,cy,0,cx,cy,cr*2);
+    cg.addColorStop(0,'rgba(180,235,255,.65)'); cg.addColorStop(1,'transparent');
+    ctx.fillStyle=cg; ctx.fillRect(cx-cr*2,cy-cr*2,cr*4,cr*4);
+  },
+  // 04 Réseau Chlorophyllien: golden photons raining down + node glows
+  function(ctx,w,h,t){
+    var cx=w/2, cy=h/2;
+    for(var i=0;i<40;i++){
+      var phase=(t*.72+i*.025)%1;
+      var x=cx+(i/40-.5)*w*.92;
+      var y=-15+phase*(h+20);
+      var a=Math.sin(phase*Math.PI)*.65;
+      ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2);
+      ctx.fillStyle='rgba(205,245,85,'+a+')';
+      ctx.shadowBlur=9; ctx.shadowColor='rgba(165,225,65,.5)';
+      ctx.fill(); ctx.shadowBlur=0;
+    }
+    for(var i=0;i<14;i++){
+      var a=(i/14)*Math.PI*2+t*.11;
+      var r=Math.min(55+i*32, w*.42);
+      var px=cx+Math.cos(a)*r*.9, py=cy+Math.sin(a)*r*.7;
+      var br=.42+Math.sin(t*1.4+i*.62)*.38;
+      ctx.beginPath(); ctx.arc(px,py,4.5,0,Math.PI*2);
+      ctx.fillStyle='rgba(148,232,78,'+br+')';
+      ctx.shadowBlur=16; ctx.shadowColor='rgba(118,210,58,.65)';
+      ctx.fill(); ctx.shadowBlur=0;
+    }
+  },
+  // 05 Enveloppe: slow green wisps + healing pulse rings
+  function(ctx,w,h,t){
+    var cx=w/2, cy=h/2;
+    for(var i=0;i<28;i++){
+      var x=w*(.08+(i*.618%0.84));
+      var y=h*(.18+(i*.382%0.64))+Math.sin(t*.28+i*.42)*32;
+      var a=.32+Math.sin(t*.75+i*.62)*.28;
+      var r=3.5+Math.sin(t*1.0+i)*1.8;
+      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fillStyle='rgba(75,218,102,'+a+')';
+      ctx.shadowBlur=16; ctx.shadowColor='rgba(55,195,80,.5)';
+      ctx.fill(); ctx.shadowBlur=0;
+    }
+    for(var i=0;i<6;i++){
+      var pf=(t*.35+i*.167)%1, r=12+pf*Math.min(w,h)*.52;
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+      ctx.strokeStyle='rgba(58,192,78,'+(0.28-pf*.28)+')';
+      ctx.lineWidth=2; ctx.stroke();
+    }
+  }
+];
+
+function runPtAnim(ts){
+  if(!ptLast) ptLast=ts;
+  ptTime+=(ts-ptLast)*.001; ptLast=ts;
+  ptCtx.clearRect(0,0,ptW,ptH);
+  if(activeChamber>=0 && CHAMBER_FX[activeChamber])
+    CHAMBER_FX[activeChamber](ptCtx,ptW,ptH,ptTime);
+  ptAnimId=requestAnimationFrame(runPtAnim);
+}
+
+function initInterior(){ resizePt(); }
+
+function startInteriorAnim(){
+  if(ptAnimId) return;
+  ptLast=0;
+  ptAnimId=requestAnimationFrame(runPtAnim);
+}
+function stopInteriorAnim(){
+  if(ptAnimId){ cancelAnimationFrame(ptAnimId); ptAnimId=null; ptLast=0; }
+  if(ptCtx) ptCtx.clearRect(0,0,ptW,ptH);
+}
 
 // ─── placeholder so old references don't throw ───
 function drawTunnel(){}
@@ -1241,12 +1387,15 @@ window.goToChamber = function(idx){
   if(oldIdx < 0){
     setChamberBg(idx, true);
     renderChamberContent(idx);
+    ptTime=0; ptLast=0;
+    startInteriorAnim();
     gsap.fromTo('#int-content', {opacity:0,y:20}, {opacity:1,y:0,duration:.55,ease:'power2.out'});
     return;
   }
 
-  // Image crossfade (CSS transition) + content slide (GSAP)
+  // Image crossfade (CSS transition) + content slide (GSAP) + particle reset
   setChamberBg(idx, false);
+  ptTime=0; ptLast=0;
   gsap.timeline()
     .to('#int-content', {opacity:0, y:-14, duration:.3, ease:'power2.in'})
     .add(function(){ renderChamberContent(idx); })
