@@ -114,30 +114,85 @@ nav{
 
 /* ── INTERIOR EXPERIENCE ── */
 #section-cigarette{overflow:hidden;}
-#interior-bg{position:absolute;inset:0;z-index:0;}
-#interior-bg canvas{width:100%;height:100%;display:block;}
+#interior-bg{position:absolute;inset:0;z-index:0;overflow:hidden;}
+
+/* Dual crossfade layers */
+.int-bg-layer{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;background-repeat:no-repeat;
+  opacity:0;
+  transition:opacity .9s cubic-bezier(.22,1,.36,1);
+  will-change:opacity,filter;
+}
+.int-bg-layer.int-visible{opacity:1;}
+
+/* Per-chamber filter animations on the image itself */
+.int-bg-layer.anim-filtre  {animation:filtreFilter  3.8s ease-in-out infinite;}
+.int-bg-layer.anim-tissu   {animation:tissuFilter   2.6s ease-in-out infinite;}
+.int-bg-layer.anim-chambre {animation:chambreFilter 2.2s ease-in-out infinite;}
+.int-bg-layer.anim-reseau  {animation:reseauFilter  2.9s ease-in-out infinite;}
+.int-bg-layer.anim-env     {animation:envFilter     3.5s ease-in-out infinite;}
+
+/* Filtre: warm amber sunlight pulse on fibers — brightness + warm sepia */
+@keyframes filtreFilter{
+  0%,100%{filter:brightness(.82) contrast(1.08) sepia(.12) saturate(.95);}
+  50%    {filter:brightness(1.2)  contrast(1.14) sepia(.24) saturate(1.18);}
+}
+/* Tissu: blue-white cell breathing — scale + cool saturation */
+@keyframes tissuFilter{
+  0%,100%{filter:brightness(.78) saturate(.9)  hue-rotate(0deg) scale(1);}
+  45%    {filter:brightness(1.14) saturate(1.28) hue-rotate(8deg)  scale(1.012);}
+}
+/* Chambre: electric energy flash — high contrast flicker */
+@keyframes chambreFilter{
+  0%,100%{filter:brightness(.72) contrast(1.15) saturate(.85);}
+  40%    {filter:brightness(1.28) contrast(1.22) saturate(1.25) hue-rotate(-10deg);}
+  65%    {filter:brightness(.88)  contrast(1.1)  saturate(1.0);}
+}
+/* Réseau: solar recharge rhythm — triple-step brightness cycle */
+@keyframes reseauFilter{
+  0%    {filter:brightness(.72) saturate(.88) contrast(1.04);}
+  30%   {filter:brightness(1.3)  saturate(1.35) contrast(1.12);}
+  58%   {filter:brightness(.85)  saturate(1.08) contrast(1.06);}
+  100%  {filter:brightness(.72) saturate(.88) contrast(1.04);}
+}
+/* Enveloppe: organic green pulse */
+@keyframes envFilter{
+  0%,100%{filter:brightness(.8) saturate(.95) contrast(1.04);}
+  50%    {filter:brightness(1.12) saturate(1.22) contrast(1.1) hue-rotate(6deg);}
+}
+
+/* Directional light overlay — per chamber */
+#int-light-layer{
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+}
+#section-cigarette.ch-filtre  #int-light-layer{background:radial-gradient(ellipse at 80% 8%,  rgba(255,195,85,.22) 0%,transparent 55%);animation:lightPulse 3.8s ease-in-out infinite;}
+#section-cigarette.ch-regener #int-light-layer{background:radial-gradient(ellipse at center,   rgba(130,180,255,.18) 0%,transparent 52%);animation:lightPulse 2.6s ease-in-out infinite;}
+#section-cigarette.ch-meta    #int-light-layer{background:radial-gradient(ellipse at center,   rgba(60,145,230,.22) 0%,transparent 44%);animation:lightFast  2.0s ease-in-out infinite;}
+#section-cigarette.ch-chloro  #int-light-layer{background:radial-gradient(ellipse at 42% 0%,   rgba(175,235,75,.2)  0%,transparent 58%);animation:lightPulse 2.9s ease-in-out infinite;}
+#section-cigarette.ch-tissu   #int-light-layer{background:radial-gradient(ellipse at center,   rgba(55,185,85,.18)  0%,transparent 50%);animation:lightFast  3.5s ease-in-out infinite;}
+@keyframes lightPulse{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes lightFast {0%,100%{opacity:.35}50%{opacity:1}}
+
+/* Scan line shimmer — subtle horizontal stripe sweep */
+#int-scan-layer{
+  position:absolute;inset:0;z-index:3;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent 0px,transparent 3px,rgba(255,255,255,.012) 3px,rgba(255,255,255,.012) 4px);
+  animation:scanMove 8s linear infinite;
+}
+@keyframes scanMove{0%{background-position:0 0;}100%{background-position:0 -200px;}}
+
+/* Vignette */
+#int-vignette{
+  position:absolute;inset:0;z-index:4;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 22%,rgba(10,10,11,.6) 100%);
+}
 
 .interior-overlay{
   position:absolute;inset:0;z-index:10;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   pointer-events:none;
 }
-/* vignette tube effect — lighter so background scenes show through */
-.interior-overlay::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at center,transparent 22%,rgba(10,10,11,.55) 100%);
-  pointer-events:none;z-index:0;
-}
-
-/* per-chamber ambient glow layer */
-#int-glow-layer{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;}
-#section-cigarette.ch-filtre  #int-glow-layer{background:radial-gradient(ellipse at 78% 12%,rgba(255,190,80,.14) 0%,transparent 55%);opacity:1;animation:glowBreath 3.2s ease-in-out infinite;}
-#section-cigarette.ch-regener #int-glow-layer{background:radial-gradient(ellipse at center,rgba(140,185,255,.1) 0%,transparent 55%);opacity:1;animation:glowBreath 2.6s ease-in-out infinite;}
-#section-cigarette.ch-meta    #int-glow-layer{background:radial-gradient(ellipse at center,rgba(60,145,230,.13) 0%,transparent 45%);opacity:1;animation:glowFast 2s ease-in-out infinite;}
-#section-cigarette.ch-chloro  #int-glow-layer{background:radial-gradient(ellipse at 42% 0%,rgba(180,230,80,.12) 0%,transparent 60%);opacity:1;animation:glowBreath 2.9s ease-in-out infinite;}
-#section-cigarette.ch-tissu   #int-glow-layer{background:radial-gradient(ellipse at center,rgba(55,180,85,.12) 0%,transparent 52%);opacity:1;animation:glowFast 3.5s ease-in-out infinite;}
-@keyframes glowBreath{0%,100%{opacity:.65}50%{opacity:1}}
-@keyframes glowFast  {0%,100%{opacity:.45}50%{opacity:1}}
 
 .interior-content{
   position:relative;z-index:1;
@@ -528,8 +583,13 @@ nav{
 
   <!-- TAB: LA CIGARETTE — INTERIOR EXPERIENCE -->
   <div class="section-panel" id="section-cigarette">
-    <div id="interior-bg"><canvas id="int-canvas"></canvas></div>
-    <div id="int-glow-layer"></div>
+    <div id="interior-bg">
+      <div class="int-bg-layer" id="int-bg-a"></div>
+      <div class="int-bg-layer" id="int-bg-b"></div>
+      <div id="int-light-layer"></div>
+      <div id="int-scan-layer"></div>
+      <div id="int-vignette"></div>
+    </div>
     <button class="int-exit-btn" onclick="switchTab('commander')">Quitter l&#8217;exploration &times;</button>
 
     <div class="interior-overlay">
@@ -1011,51 +1071,58 @@ window.switchTab = function(tab){
 };
 
 // ═══════════════════════════════════════════════════
-//  INTERIOR EXPERIENCE — 5 CHAMBERS (Filter → Tip)
+//  INTERIOR EXPERIENCE — IMAGE BACKGROUNDS + CSS FX
 // ═══════════════════════════════════════════════════
-var intCanvas = document.getElementById('int-canvas');
-var intCtx = intCanvas.getContext('2d');
-var IW, IH;
+var CHAMBER_IMGS  = ['etape1-filtre.png','etape2-tissu.png','etape3-chambre.png','etape4-reseau.png','etape5-enveloppe.png'];
+var CHAMBER_ANIM  = ['anim-filtre','anim-tissu','anim-chambre','anim-reseau','anim-env'];
+var CH_CLASSES    = ['ch-filtre','ch-regener','ch-meta','ch-chloro','ch-tissu'];
 
-function resizeIntCanvas(){
-  IW = intCanvas.width  = intCanvas.offsetWidth  || window.innerWidth;
-  IH = intCanvas.height = intCanvas.offsetHeight || (window.innerHeight - 64);
-}
+var bgA = document.getElementById('int-bg-a');
+var bgB = document.getElementById('int-bg-b');
+var activeBgLayer = 'a'; // which layer is front
+var bgSwapTimer = null;
 
-function initInterior(){
-  resizeIntCanvas();
-}
+// Preload images so first reveal is instant
+CHAMBER_IMGS.forEach(function(src){ var img=new Image(); img.src=src; });
 
-window.addEventListener('resize', function(){
-  if(currentTab === 'cigarette') resizeIntCanvas();
-});
+function setChamberBg(idx, instant){
+  var front = activeBgLayer==='a' ? bgA : bgB;
+  var back  = activeBgLayer==='a' ? bgB : bgA;
 
-// Interior animation
-var intAnimId = null, intTime = 0, intLast = 0;
+  // Prepare back layer (invisible)
+  back.style.backgroundImage = 'url("'+CHAMBER_IMGS[idx]+'")';
+  back.className = 'int-bg-layer '+CHAMBER_ANIM[idx];
 
-function runIntAnim(ts){
-  if(!intLast) intLast = ts;
-  intTime += (ts - intLast) * 0.001;
-  intLast = ts;
-  if(activeChamber >= 0 && CHAMBERS[activeChamber]){
-    CHAMBERS[activeChamber].drawBg(intCtx, IW, IH, intTime);
+  if(instant){
+    back.style.transition = 'none';
+    requestAnimationFrame(function(){
+      back.classList.add('int-visible');
+      front.classList.remove('int-visible');
+      activeBgLayer = activeBgLayer==='a'?'b':'a';
+    });
+    return;
   }
-  intAnimId = requestAnimationFrame(runIntAnim);
-}
-function startInteriorAnim(){
-  if(intAnimId) return;
-  intLast = 0;
-  intAnimId = requestAnimationFrame(runIntAnim);
-}
-function stopInteriorAnim(){
-  if(intAnimId){ cancelAnimationFrame(intAnimId); intAnimId = null; intLast = 0; }
+
+  // Crossfade
+  back.style.transition = '';
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      back.classList.add('int-visible');
+      front.classList.remove('int-visible');
+    });
+  });
+  if(bgSwapTimer) clearTimeout(bgSwapTimer);
+  bgSwapTimer = setTimeout(function(){
+    activeBgLayer = activeBgLayer==='a'?'b':'a';
+  }, 1000);
 }
 
-// CHAMBER BACKGROUND DRAW FUNCTIONS
-// Each draws a full-screen realistic scene suggesting the mechanism in action
+function initInterior(){}
+function startInteriorAnim(){}
+function stopInteriorAnim(){}
 
-// SHARED: draw perspective tunnel rings (the inside-of-cigarette effect)
-function drawTunnel(ctx, w, h, color, alpha){
+// ─── placeholder so old references don't throw ───
+function drawTunnel(){}
   var cx = w/2, cy = h/2;
   for(var i = 8; i >= 1; i--){
     var r = 80 + i * 100;
@@ -1076,388 +1143,9 @@ function drawTunnel(ctx, w, h, color, alpha){
   }
 }
 
-// CH 0: Filtre Bio-Actif — dense warm fiber mesh, sun from top-right
-function drawFiltreScene(ctx, w, h, t){
-  ctx.clearRect(0,0,w,h);
-  var bg = ctx.createRadialGradient(w*.5,h*.45,0,w*.5,h*.45,w*.85);
-  bg.addColorStop(0,'#2e1a08'); bg.addColorStop(.5,'#1a0d05'); bg.addColorStop(1,'#0d0603');
-  ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
-
-  // Sun glow from top-right
-  var sunX=w*.82, sunY=h*.04;
-  var sg=ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,h*.65);
-  sg.addColorStop(0,'rgba(255,220,130,.3)'); sg.addColorStop(.35,'rgba(200,140,55,.12)'); sg.addColorStop(1,'transparent');
-  ctx.fillStyle=sg; ctx.fillRect(0,0,w,h);
-
-  // Sun rays
-  for(var i=0;i<12;i++){
-    var ang=Math.PI*.55+(i/12)*.9+Math.sin(t*.35+i*.38)*.07;
-    ctx.beginPath(); ctx.moveTo(sunX,sunY);
-    ctx.lineTo(sunX+Math.cos(ang)*h*1.6, sunY+Math.sin(ang)*h*1.6);
-    ctx.strokeStyle='rgba(255,200,90,'+(0.05+Math.sin(t*.7+i*.4)*.025)+')';
-    ctx.lineWidth=20+i*2.5; ctx.stroke();
-  }
-
-  // Dense horizontal fiber lines
-  for(var f=0;f<55;f++){
-    var fy=(f/55)*h, amp=12+Math.sin(t*.25+f*.42)*6;
-    var freq=0.009+Math.sin(t*.08+f*.18)*.003;
-    ctx.beginPath();
-    for(var x=0;x<=w;x+=3){
-      var py=fy+Math.sin(x*freq+t*.5+f*.75)*amp;
-      x===0?ctx.moveTo(x,py):ctx.lineTo(x,py);
-    }
-    var al=0.18+Math.sin(t*.4+f*.28)*.07;
-    ctx.strokeStyle='rgba(220,175,110,'+al+')'; ctx.lineWidth=.75; ctx.stroke();
-  }
-  // Cross fibers
-  for(var f=0;f<35;f++){
-    var fx=(f/35)*w;
-    ctx.beginPath();
-    for(var y=0;y<=h;y+=3){
-      var px=fx+Math.sin(y*.014+t*.38+f*.85)*18;
-      y===0?ctx.moveTo(px,y):ctx.lineTo(px,y);
-    }
-    ctx.strokeStyle='rgba(195,148,75,.12)'; ctx.lineWidth=.7; ctx.stroke();
-  }
-
-  // Glowing regeneration nodes at intersections
-  for(var i=0;i<24;i++){
-    var nx=(0.08+.84*(i*.618%1))*w, ny=(0.08+.84*(i*.382%1))*h;
-    var pulse=.5+Math.sin(t*1.4+i*.65)*.5;
-    var gr=ctx.createRadialGradient(nx,ny,0,nx,ny,16+pulse*12);
-    gr.addColorStop(0,'rgba(255,195,90,'+(0.55*pulse)+')');
-    gr.addColorStop(.5,'rgba(200,140,60,'+(0.2*pulse)+')');
-    gr.addColorStop(1,'transparent');
-    ctx.fillStyle=gr; ctx.fillRect(nx-28,ny-28,56,56);
-  }
-
-  drawTunnel(ctx, w, h, '200,140,70', 0.28);
-  var vig=ctx.createRadialGradient(w/2,h/2,h*.18,w/2,h/2,w*.72);
-  vig.addColorStop(0,'transparent'); vig.addColorStop(1,'rgba(8,4,1,.78)');
-  ctx.fillStyle=vig; ctx.fillRect(0,0,w,h);
-}
-
-// CH 1: Tissu Régénérateur — blue-white cells, vivid division
-function drawRegenerScene(ctx, w, h, t){
-  ctx.clearRect(0,0,w,h);
-  var bg=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,w*.75);
-  bg.addColorStop(0,'#060d1e'); bg.addColorStop(.6,'#030a18'); bg.addColorStop(1,'#010408');
-  ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
-  var cx=w/2, cy=h/2;
-
-  // Background membrane web
-  for(var i=0;i<30;i++){
-    var a1=(i/30)*Math.PI*2+t*.04, r1=40+i*28;
-    var a2=((i+1)/30)*Math.PI*2+t*.04, r2=40+(i+1)*28;
-    ctx.beginPath();
-    ctx.moveTo(cx+Math.cos(a1)*r1*.9,cy+Math.sin(a1)*r1*.6);
-    ctx.lineTo(cx+Math.cos(a2)*r2*.9,cy+Math.sin(a2)*r2*.6);
-    ctx.strokeStyle='rgba(100,150,220,.08)'; ctx.lineWidth=.8; ctx.stroke();
-  }
-
-  // Main cells — larger, more visible
-  for(var i=0;i<28;i++){
-    var baseAngle=(i/28)*Math.PI*2+t*.045;
-    var orbitR=55+Math.sin(t*.25+i)*.22*(i*20+50);
-    var px=cx+Math.cos(baseAngle)*Math.min(orbitR,(w*.42));
-    var py=cy+Math.sin(baseAngle)*Math.min(orbitR,(h*.38));
-    var cellR=22+Math.sin(t*.5+i*.6)*6;
-    var divPhase=(t*.3+i*.074)%1;
-    var brightness=0.25+Math.sin(t*.9+i*.5)*.12;
-
-    if(divPhase<.52){
-      // Full cell with membrane detail
-      var cf=ctx.createRadialGradient(px,py,0,px,py,cellR);
-      cf.addColorStop(0,'rgba(170,200,255,'+(brightness*.18)+')');
-      cf.addColorStop(.7,'rgba(130,170,235,'+(brightness*.08)+')');
-      cf.addColorStop(1,'transparent');
-      ctx.fillStyle=cf; ctx.beginPath(); ctx.arc(px,py,cellR,0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(px,py,cellR,0,Math.PI*2);
-      ctx.strokeStyle='rgba(160,195,245,'+(brightness*.8)+')'; ctx.lineWidth=1.5; ctx.stroke();
-      // Nucleus
-      ctx.beginPath(); ctx.arc(px,py,cellR*.32,0,Math.PI*2);
-      ctx.fillStyle='rgba(210,225,255,'+(brightness*.6)+')'; ctx.fill();
-      ctx.strokeStyle='rgba(190,210,255,'+(brightness*.4)+')'; ctx.lineWidth=1; ctx.stroke();
-    } else {
-      // Dividing — two daughter cells
-      var sp=(divPhase-.52)*2.2*cellR*.85;
-      for(var d=-1;d<=1;d+=2){
-        var df=ctx.createRadialGradient(px+d*sp,py,0,px+d*sp,py,cellR*.88);
-        df.addColorStop(0,'rgba(155,190,250,'+(brightness*.15)+')');
-        df.addColorStop(1,'transparent');
-        ctx.fillStyle=df; ctx.beginPath(); ctx.arc(px+d*sp,py,cellR*.88,0,Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(px+d*sp,py,cellR*.88,0,Math.PI*2);
-        ctx.strokeStyle='rgba(160,195,245,'+(brightness*.7)+')'; ctx.lineWidth=1.4; ctx.stroke();
-        ctx.beginPath(); ctx.arc(px+d*sp,py,cellR*.25,0,Math.PI*2);
-        ctx.fillStyle='rgba(210,230,255,'+(brightness*.5)+')'; ctx.fill();
-      }
-      // Cleavage furrow
-      ctx.beginPath(); ctx.moveTo(px,py-cellR*.5); ctx.lineTo(px,py+cellR*.5);
-      ctx.strokeStyle='rgba(200,220,255,.2)'; ctx.lineWidth=1.5; ctx.stroke();
-    }
-  }
-
-  // Floating DNA strands
-  for(var i=0;i<5;i++){
-    var sx=(i*.2+.1)*w, sy=h*.5;
-    ctx.beginPath();
-    for(var x=sx-80;x<sx+80;x+=4){
-      var yy=sy+Math.sin((x-sx)*.04+t*.6+i)*25+(i-.5)*60;
-      x===sx-80?ctx.moveTo(x,yy):ctx.lineTo(x,yy);
-    }
-    ctx.strokeStyle='rgba(120,170,240,.14)'; ctx.lineWidth=1.2; ctx.stroke();
-  }
-
-  drawTunnel(ctx, w, h, '140,180,240', 0.35);
-  var vig=ctx.createRadialGradient(cx,cy,h*.15,cx,cy,w*.7);
-  vig.addColorStop(0,'transparent'); vig.addColorStop(1,'rgba(1,3,10,.8)');
-  ctx.fillStyle=vig; ctx.fillRect(0,0,w,h);
-}
-
-// CH 2: Chambre Métabolique — circular hub, dramatic vascular network
-function drawMetaScene(ctx, w, h, t){
-  ctx.clearRect(0,0,w,h);
-  ctx.fillStyle='#010c18'; ctx.fillRect(0,0,w,h);
-  var cx=w/2, cy=h/2;
-
-  // Outer ambient glow
-  var og=ctx.createRadialGradient(cx,cy,0,cx,cy,w*.55);
-  og.addColorStop(0,'rgba(20,70,130,.25)'); og.addColorStop(.5,'rgba(10,45,90,.1)'); og.addColorStop(1,'transparent');
-  ctx.fillStyle=og; ctx.fillRect(0,0,w,h);
-
-  // Concentric hub rings
-  for(var r=0;r<6;r++){
-    var rr=45+r*40, pulse=Math.sin(t*1.2+r*.5)*.5+.5;
-    ctx.beginPath(); ctx.arc(cx,cy,rr,0,Math.PI*2);
-    ctx.strokeStyle='rgba(60,150,220,'+(0.12+pulse*.12)+')';
-    ctx.lineWidth=r===0?2.5:1.2; ctx.stroke();
-  }
-
-  // Hub spokes + outer ring nodes
-  var NODES=16;
-  var nodes=[];
-  for(var i=0;i<NODES;i++){
-    var a=(i/NODES)*Math.PI*2+t*.055;
-    var r=110+Math.sin(t*.3+i*.4)*28;
-    nodes.push({x:cx+Math.cos(a)*r, y:cy+Math.sin(a)*r*.7});
-  }
-
-  // Vascular branches (spoke → ring → center)
-  for(var i=0;i<NODES;i++){
-    var n=nodes[i], ni=nodes[(i+1)%NODES];
-    // radial spoke
-    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(n.x,n.y);
-    ctx.strokeStyle='rgba(50,130,210,.22)'; ctx.lineWidth=1.8; ctx.stroke();
-    // ring arc to next node
-    var cpx=(n.x+ni.x)/2+Math.sin(t*.28+i)*22, cpy=(n.y+ni.y)/2+Math.cos(t*.28+i)*18;
-    ctx.beginPath(); ctx.moveTo(n.x,n.y); ctx.quadraticCurveTo(cpx,cpy,ni.x,ni.y);
-    ctx.strokeStyle='rgba(40,120,195,.18)'; ctx.lineWidth=1.5; ctx.stroke();
-  }
-
-  // Energy pulses travelling toward center
-  for(var i=0;i<NODES;i++){
-    var pulse=(t*.85+i*(1/NODES))%1;
-    var px=nodes[i].x+(cx-nodes[i].x)*pulse, py=nodes[i].y+(cy-nodes[i].y)*pulse;
-    var alpha=.9-pulse*.65;
-    ctx.beginPath(); ctx.arc(px,py,3,0,Math.PI*2);
-    ctx.fillStyle='rgba(100,180,255,'+alpha+')';
-    ctx.shadowBlur=14; ctx.shadowColor='rgba(80,160,245,.7)';
-    ctx.fill(); ctx.shadowBlur=0;
-  }
-  // Secondary slower pulses
-  for(var i=0;i<NODES;i++){
-    var pulse=(t*.45+i*(1/NODES)+.5)%1;
-    var px=nodes[i].x+(cx-nodes[i].x)*pulse, py=nodes[i].y+(cy-nodes[i].y)*pulse;
-    ctx.beginPath(); ctx.arc(px,py,1.8,0,Math.PI*2);
-    ctx.fillStyle='rgba(160,210,255,'+(0.6-pulse*.4)+')'; ctx.fill();
-  }
-
-  // Outer node circles
-  for(var i=0;i<NODES;i++){
-    var pulse=.5+Math.sin(t*1.5+i*.4)*.5;
-    ctx.beginPath(); ctx.arc(nodes[i].x,nodes[i].y,5+pulse*2,0,Math.PI*2);
-    ctx.fillStyle='rgba(70,150,225,'+(pulse*.25)+')';
-    ctx.strokeStyle='rgba(90,170,240,'+(pulse*.6)+')'; ctx.lineWidth=1.4;
-    ctx.fill(); ctx.stroke();
-  }
-
-  // Central core glow
-  var cr=32+Math.sin(t*1.8)*8;
-  var cg=ctx.createRadialGradient(cx,cy,0,cx,cy,cr*1.8);
-  cg.addColorStop(0,'rgba(170,225,255,.9)'); cg.addColorStop(.4,'rgba(80,175,250,.5)');
-  cg.addColorStop(.8,'rgba(40,120,210,.18)'); cg.addColorStop(1,'transparent');
-  ctx.beginPath(); ctx.arc(cx,cy,cr*1.8,0,Math.PI*2); ctx.fillStyle=cg;
-  ctx.shadowBlur=50; ctx.shadowColor='rgba(80,160,245,.55)'; ctx.fill(); ctx.shadowBlur=0;
-
-  drawTunnel(ctx, w, h, '55,130,210', 0.3);
-  var vig=ctx.createRadialGradient(cx,cy,h*.14,cx,cy,w*.68);
-  vig.addColorStop(0,'transparent'); vig.addColorStop(1,'rgba(1,8,18,.82)');
-  ctx.fillStyle=vig; ctx.fillRect(0,0,w,h);
-}
-
-// CH 3: Réseau Chlorophyllien — rich green, vivid hexagonal chloroplasts, golden sun
-function drawChloroScene(ctx, w, h, t){
-  ctx.clearRect(0,0,w,h);
-  var bg=ctx.createRadialGradient(w*.42,h*.38,0,w*.42,h*.38,w*.9);
-  bg.addColorStop(0,'#071808'); bg.addColorStop(.5,'#040f05'); bg.addColorStop(1,'#020803');
-  ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
-  var cx=w/2, cy=h/2;
-
-  // Sun glow from top center
-  var sunX=w*.42, sunY=-h*.05;
-  var sg=ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,h*1.0);
-  sg.addColorStop(0,'rgba(230,210,100,.22)'); sg.addColorStop(.3,'rgba(120,190,70,.1)'); sg.addColorStop(1,'transparent');
-  ctx.fillStyle=sg; ctx.fillRect(0,0,w,h);
-
-  // Sun rays
-  for(var i=0;i<14;i++){
-    var ang=Math.PI*.5+(i/14-.5)*1.1+Math.sin(t*.28+i*.45)*.05;
-    ctx.beginPath(); ctx.moveTo(sunX,sunY);
-    ctx.lineTo(sunX+Math.cos(ang)*h*1.7, sunY+Math.sin(ang)*h*1.7);
-    ctx.strokeStyle='rgba(190,230,90,'+(0.04+Math.sin(t*.55+i*.5)*.02)+')';
-    ctx.lineWidth=20+i*3.5; ctx.stroke();
-  }
-
-  // Dense hexagonal chloroplast field
-  for(var i=0;i<22;i++){
-    var a=(i/22)*Math.PI*2+t*.1, r=60+Math.sin(t*.35+i*.48)*25+i*24;
-    var px=cx+Math.cos(a)*Math.min(r,.44*w);
-    var py=cy+Math.sin(a)*Math.min(r,.38*h);
-    var sz=18+Math.sin(t*1.0+i*.55)*5;
-    var al=0.35+Math.sin(t*1.3+i*.6)*.18;
-
-    // Hex chloroplast shell
-    ctx.beginPath();
-    for(var j=0;j<6;j++){
-      var ha=(j/6)*Math.PI*2+t*.02;
-      j===0?ctx.moveTo(px+Math.cos(ha)*sz,py+Math.sin(ha)*sz):ctx.lineTo(px+Math.cos(ha)*sz,py+Math.sin(ha)*sz);
-    }
-    ctx.closePath();
-    var cf=ctx.createRadialGradient(px,py,0,px,py,sz);
-    cf.addColorStop(0,'rgba(110,200,80,'+(al*.18)+')');
-    cf.addColorStop(1,'rgba(60,150,50,'+(al*.06)+')');
-    ctx.fillStyle=cf; ctx.fill();
-    ctx.strokeStyle='rgba(95,185,75,'+al+')'; ctx.lineWidth=1.8; ctx.stroke();
-
-    // Inner grana membrane (smaller hex)
-    var gsz=sz*.5;
-    ctx.beginPath();
-    for(var j=0;j<6;j++){
-      var ha=(j/6)*Math.PI*2-t*.03;
-      j===0?ctx.moveTo(px+Math.cos(ha)*gsz,py+Math.sin(ha)*gsz):ctx.lineTo(px+Math.cos(ha)*gsz,py+Math.sin(ha)*gsz);
-    }
-    ctx.closePath();
-    ctx.fillStyle='rgba(150,230,90,'+(al*.28)+')'; ctx.fill();
-    ctx.strokeStyle='rgba(130,215,80,'+(al*.5)+')'; ctx.lineWidth=1; ctx.stroke();
-
-    // Central bright thylakoid
-    ctx.beginPath(); ctx.arc(px,py,sz*.22,0,Math.PI*2);
-    ctx.fillStyle='rgba(210,245,120,'+(al*.55)+')'; ctx.fill();
-  }
-
-  // Energy particles from periphery toward center (photons)
-  for(var i=0;i<28;i++){
-    var phase=(t*.65+i/28)%1, sa=(i/28)*Math.PI*2;
-    var startR=Math.min(w,h)*.46;
-    var px=cx+Math.cos(sa)*startR*(1-phase);
-    var py=cy+Math.sin(sa)*startR*.72*(1-phase);
-    ctx.beginPath(); ctx.arc(px,py,2.2,0,Math.PI*2);
-    ctx.fillStyle='rgba(200,240,110,'+(phase*.75)+')';
-    ctx.shadowBlur=10; ctx.shadowColor='rgba(150,215,75,.55)'; ctx.fill(); ctx.shadowBlur=0;
-  }
-
-  drawTunnel(ctx, w, h, '80,170,65', 0.32);
-  var vig=ctx.createRadialGradient(cx,cy,h*.15,cx,cy,w*.7);
-  vig.addColorStop(0,'transparent'); vig.addColorStop(1,'rgba(1,6,2,.82)');
-  ctx.fillStyle=vig; ctx.fillRect(0,0,w,h);
-}
-
-// CH 4: Tissu Végétal Hybride — dense organic fibers, bioluminescent network
-function drawTissuScene(ctx, w, h, t){
-  ctx.clearRect(0,0,w,h);
-  var bg=ctx.createRadialGradient(w*.5,h*.5,0,w*.5,h*.5,w*.8);
-  bg.addColorStop(0,'#081205'); bg.addColorStop(.55,'#050e04'); bg.addColorStop(1,'#030803');
-  ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
-  var cx=w/2, cy=h/2;
-
-  // Deep background fibers (many thin strands)
-  for(var f=0;f<45;f++){
-    var fx=(f/45)*w*1.1-w*.05;
-    ctx.beginPath();
-    for(var y=0;y<=h;y+=3){
-      var px=fx+Math.sin(y*.012+t*.3+f*.65)*22+Math.sin(y*.028+t*.18+f*.4)*10;
-      y===0?ctx.moveTo(px,y):ctx.lineTo(px,y);
-    }
-    ctx.strokeStyle='rgba(50,120,60,.14)'; ctx.lineWidth=.9; ctx.stroke();
-  }
-  for(var f=0;f<35;f++){
-    var fy=(f/35)*h*1.1-h*.05;
-    ctx.beginPath();
-    for(var x=0;x<=w;x+=3){
-      var py=fy+Math.sin(x*.013+t*.25+f*.7)*20+Math.sin(x*.03+t*.15+f*.35)*8;
-      x===0?ctx.moveTo(x,py):ctx.lineTo(x,py);
-    }
-    ctx.strokeStyle='rgba(45,110,55,.12)'; ctx.lineWidth=.8; ctx.stroke();
-  }
-
-  // Thicker organic branches radiating from center
-  for(var b=0;b<14;b++){
-    var baseAng=(b/14)*Math.PI*2+t*.07;
-    var x=cx, y=cy, ang=baseAng;
-    for(var s=0;s<12;s++){
-      var segLen=16+Math.sin(t*.4+b+s)*7;
-      var nx=x+Math.cos(ang)*segLen, ny=y+Math.sin(ang)*segLen;
-      ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(nx,ny);
-      var progress=s/12;
-      ctx.strokeStyle='rgba(55,150,70,'+(0.6-progress*.35)+')';
-      ctx.lineWidth=3.2-s*.22; ctx.stroke();
-      // Leaf node
-      if(s>1 && s%3===0){
-        var nr=3.5+Math.sin(t*.9+b+s)*1.2;
-        ctx.beginPath(); ctx.arc(x,y,nr,0,Math.PI*2);
-        ctx.fillStyle='rgba(85,175,95,.4)'; ctx.fill();
-        // sub-branch (deterministic angle)
-        var ba=ang+((b+s)%2===0?.65:-.65);
-        ctx.beginPath(); ctx.moveTo(x,y);
-        ctx.lineTo(x+Math.cos(ba)*segLen*.55, y+Math.sin(ba)*segLen*.55);
-        ctx.strokeStyle='rgba(55,140,65,.28)'; ctx.lineWidth=1.2; ctx.stroke();
-      }
-      x=nx; y=ny;
-      ang+=Math.sin(t*.18+b+s)*.38;
-    }
-  }
-
-  // Bioluminescent healing pulses (expanding rings)
-  for(var i=0;i<8;i++){
-    var pf=(t*.45+i*.125)%1, pr=15+pf*Math.min(w,h)*.5;
-    ctx.beginPath(); ctx.arc(cx,cy,pr,0,Math.PI*2);
-    ctx.strokeStyle='rgba(55,175,75,'+(0.3-pf*.3)+')';
-    ctx.lineWidth=2; ctx.stroke();
-  }
-  // Secondary pulses offset
-  for(var i=0;i<5;i++){
-    var pf=(t*.28+i*.2+.3)%1, pr=10+pf*Math.min(w,h)*.38;
-    ctx.beginPath(); ctx.arc(cx,cy,pr,0,Math.PI*2);
-    ctx.strokeStyle='rgba(120,220,100,'+(0.18-pf*.18)+')';
-    ctx.lineWidth=1.2; ctx.stroke();
-  }
-
-  // Bright glowing repair nodes
-  for(var i=0;i<18;i++){
-    var nx=(0.08+.84*(i*.618%1))*w, ny=(0.08+.84*(i*.382%1))*h;
-    var pulse=.5+Math.sin(t*1.1+i*.7)*.5;
-    var gr=ctx.createRadialGradient(nx,ny,0,nx,ny,10+pulse*8);
-    gr.addColorStop(0,'rgba(120,235,90,'+(0.5*pulse)+')');
-    gr.addColorStop(1,'transparent');
-    ctx.fillStyle=gr; ctx.fillRect(nx-18,ny-18,36,36);
-  }
-
-  drawTunnel(ctx, w, h, '55,145,65', 0.3);
-  var vig=ctx.createRadialGradient(cx,cy,h*.12,cx,cy,w*.7);
-  vig.addColorStop(0,'transparent'); vig.addColorStop(1,'rgba(2,8,3,.85)');
-  ctx.fillStyle=vig; ctx.fillRect(0,0,w,h);
-}
+function drawFiltreScene(){}  function drawRegenerScene(){}
+function drawMetaScene(){}   function drawChloroScene(){}
+function drawTissuScene(){}
 
 // CHAMBER DATA (Filter first → Tip last)
 var CHAMBERS = [
@@ -1467,7 +1155,6 @@ var CHAMBERS = [
     body: 'Vous p&#233;n&#233;trez par la mati&#232;re la plus expos&#233;e&nbsp;: le filtre. Sa structure polym&#232;re bio-active d&#233;tecte les dommages et initie un protocole de reconstruction en moins de 240 secondes sous plein soleil.',
     color: '#c4813a',
     tags: [{l:'Polymère Bio-Actif',c:'#c4813a'},{l:'4 min',c:'#c4813a'},{l:'Photo-réactif',c:'#c4813a'}],
-    drawBg: drawFiltreScene
   },
   {
     num: '02 — 05', zone: 'Zone de R&#233;g&#233;n&#233;ration',
@@ -1475,7 +1162,6 @@ var CHAMBERS = [
     body: 'Des cellules souches artificielles se divisent en continu pour reconstruire la mati&#232;re consomm&#233;e. Observez la division cellulaire en temps r&#233;el&nbsp;: la cigarette se r&#233;&#233;crit elle-m&#234;me apr&#232;s chaque usage.',
     color: '#8aabdc',
     tags: [{l:'Cellules Souches',c:'#8aabdc'},{l:'Division Active',c:'#8aabdc'},{l:'Reconstruction',c:'#8aabdc'}],
-    drawBg: drawRegenerScene
   },
   {
     num: '03 — 05', zone: 'Chambre Centrale',
@@ -1483,7 +1169,6 @@ var CHAMBERS = [
     body: 'Le c&#339;ur &#233;nerg&#233;tique de l&#8217;INFINICIG. L&#8217;&#233;nergie solaire convertie circule via un r&#233;seau nano-vasculaire guid&#233; par intelligence artificielle embarqu&#233;e, irriguant chaque zone d&#233;faillante.',
     color: '#5090c0',
     tags: [{l:'IA Embarquée',c:'#5090c0'},{l:'Nano-vasculaire',c:'#5090c0'},{l:'Distribution',c:'#5090c0'}],
-    drawBg: drawMetaScene
   },
   {
     num: '04 — 05', zone: 'R&#233;seau Interne',
@@ -1491,7 +1176,6 @@ var CHAMBERS = [
     body: 'Des milliers de chloroplastes synth&#233;tiques embarqu&#233;s captent la lumi&#232;re solaire. En 4 minutes d&#8217;exposition, le syst&#232;me atteint 100&nbsp;% de sa charge &#233;nerg&#233;tique, alimentant l&#8217;int&#233;gralit&#233; du processus.',
     color: '#6aaa55',
     tags: [{l:'Photosynthèse',c:'#6aaa55'},{l:'Synthétique',c:'#6aaa55'},{l:'4 min recharge',c:'#6aaa55'}],
-    drawBg: drawChloroScene
   },
   {
     num: '05 — 05', zone: 'Enveloppe Ext&#233;rieure',
@@ -1499,7 +1183,6 @@ var CHAMBERS = [
     body: 'L&#8217;enveloppe est constitu&#233;e de fibres v&#233;g&#233;tales g&#233;n&#233;tiquement reprogramm&#233;es. Elles d&#233;tectent les dommages en temps r&#233;el et d&#233;clenchent la r&#233;paration. La surface de l&#8217;INFINICIG est vivante.',
     color: '#5a8f6a',
     tags: [{l:'Fibres Hybrides',c:'#5a8f6a'},{l:'Auto-Détection',c:'#5a8f6a'},{l:'Biomimétique',c:'#5a8f6a'}],
-    drawBg: drawTissuScene
   }
 ];
 
@@ -1547,8 +1230,6 @@ function renderChamberContent(idx){
   buildProgress();
 }
 
-var CH_CLASSES = ['ch-filtre','ch-regener','ch-meta','ch-chloro','ch-tissu'];
-
 window.goToChamber = function(idx){
   if(idx === activeChamber) return;
   var oldIdx = activeChamber;
@@ -1558,19 +1239,18 @@ window.goToChamber = function(idx){
   sec.className = 'section-panel active ' + CH_CLASSES[idx];
 
   if(oldIdx < 0){
+    setChamberBg(idx, true);
     renderChamberContent(idx);
-    intTime = 0; intLast = 0;
     gsap.fromTo('#int-content', {opacity:0,y:20}, {opacity:1,y:0,duration:.55,ease:'power2.out'});
-    startInteriorAnim(); return;
+    return;
   }
 
-  // Canvas crossfade + content slide
+  // Image crossfade (CSS transition) + content slide (GSAP)
+  setChamberBg(idx, false);
   gsap.timeline()
-    .to('#int-canvas',  {opacity:0, duration:.32, ease:'power2.in'})
-    .to('#int-content', {opacity:0, y:-14, duration:.28, ease:'power2.in'}, '<')
-    .add(function(){ intTime = 0; intLast = 0; renderChamberContent(idx); })
-    .to('#int-canvas',  {opacity:1, duration:.55, ease:'power2.out'})
-    .fromTo('#int-content', {opacity:0,y:18}, {opacity:1,y:0,duration:.45,ease:'power2.out'}, '-=.35');
+    .to('#int-content', {opacity:0, y:-14, duration:.3, ease:'power2.in'})
+    .add(function(){ renderChamberContent(idx); })
+    .fromTo('#int-content', {opacity:0,y:18}, {opacity:1,y:0,duration:.45,ease:'power2.out'});
 };
 
 window.nextChamber = function(){
@@ -1664,7 +1344,6 @@ document.addEventListener('keydown', function(e){
 
 // Init
 refreshCart();
-resizeIntCanvas();
 
 // Hero entrance
 gsap.fromTo('nav', {opacity:0,y:-10}, {opacity:1,y:0, duration:.8, delay:.2, ease:'power2.out'});
